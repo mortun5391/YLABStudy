@@ -13,11 +13,11 @@ public class FinanceTracker {
         users = new HashMap<>();
     }
 
-    public boolean registerUser(String email, String password, String name) {
+    public boolean registerUser(String email, String password, String name, String status) {
         if (users.containsKey(email)) {
             return false;
         }
-        users.put(email, new User(email,password,name));
+        users.put(email, new User(email,password,name, status));
         return true;
     }
 
@@ -56,5 +56,27 @@ public class FinanceTracker {
             return currentUser.getTransactions();
         }
         return Collections.emptyList();
+    }
+
+    public void changeEmail(String email) {
+        currentUser.setEmail(email);
+    }
+
+    public void changePassword(String password) {
+        currentUser.setPassword(password);
+    }
+
+    public void changeName(String name) {
+        currentUser.setName(name);
+    }
+
+    public void viewProfile() {
+        if (currentUser != null) {
+            System.out.println(
+                            "\nСтатус: " + currentUser.getStatus() +
+                            "\nИмя: " + currentUser.getName() +
+                            "\nEmail: " + currentUser.getEmail() +
+                            "\nПароль: ******** ");
+        }
     }
 }

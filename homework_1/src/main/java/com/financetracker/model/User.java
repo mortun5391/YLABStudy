@@ -6,12 +6,15 @@ public class User {
     private String email;
     private String password;
     private String name;
+    private String status; // admin or user
     private List<Transaction> transactions;
 
-    public User(String email, String password, String name) {
+
+    public User(String email, String password, String name, String status) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.status = status;
         this.transactions = new ArrayList<>();
     }
 
@@ -51,4 +54,7 @@ public class User {
         transactions.remove(transaction);
     }
 
+    public String getStatus() {
+        return status;
+    }
 }

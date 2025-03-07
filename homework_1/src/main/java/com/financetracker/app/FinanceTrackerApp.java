@@ -1,6 +1,7 @@
 package com.financetracker.app;
 
 import com.financetracker.model.Transaction;
+import com.financetracker.model.User;
 import com.financetracker.service.FinanceTracker;
 
 import java.util.*;
@@ -49,7 +50,7 @@ public class FinanceTrackerApp {
         }
         System.out.println("Введите имя: ");
         String name = scanner.nextLine();
-        if (financeTracker.registerUser(email, password, name)) {
+        if (financeTracker.registerUser(email, password, name, "user")) {
             System.out.println("Регистрация прошла успешно");
         }
         else {
@@ -77,7 +78,8 @@ public class FinanceTrackerApp {
             System.out.println("1. Добавить транзакцию");
             System.out.println("2. Удалить транзакцию");
             System.out.println("3. Просмотреть транзакции");
-            System.out.println("4. Выход");
+            System.out.println("4. Просмотреть профиль");
+            System.out.println("5. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -93,6 +95,9 @@ public class FinanceTrackerApp {
                     viewTransactions();
                     break;
                 case 4:
+                    viewProfile();
+                    break;
+                case 5:
                     financeTracker.logoutUser();
                     return;
                 default:
@@ -143,5 +148,97 @@ public class FinanceTrackerApp {
                         ", Тип: " + (transaction.isIncome() ? "Доход" : "Расход"));
             }
         }
+    }
+
+    private static void viewProfile() {
+        financeTracker.viewProfile();
+        while (true) {
+            System.out.println("1. Изменить профиль" +
+                             "\n2. Выход" +
+                             "\nВыберите действие: ");
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    editProfile();
+                    break;
+                case 2:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+    private static void editProfile() {
+        while (true) {
+            System.out.println("1. Изменить email");
+            System.out.println("2. Изменить пароль");
+            System.out.println("3. Изменить имя");
+            System.out.println("4. Выход");
+            System.out.println("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    changeEmail();
+                    break;
+                case 2:
+                    changePassword();
+                    break;
+                case 3:
+                    changeName();
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+    private static void changeEmail() {
+        System.out.println("Введите новый email: ");
+        String email = scanner.nextLine();
+        System.out.println("Подтвердите изменение (введите пароль): ");
+        String password = scanner.nextLine();
+        if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
+            System.out.println("Пароль неверный! Попробуйте снова");
+            editProfile();
+        }
+        financeTracker.changeEmail(email);
+        System.out.println("Изменения сохранены. Ваш новый email: " + email);
+    }
+
+    private static void changePassword() {
+        System.out.println("Введите старый пароль: ");
+        String oldPassword = scanner.nextLine();
+        if (!oldPassword.equals(financeTracker.getCurrentUser().getPassword())) {
+            System.out.println("Пароль неверный! Попробуйте снова");
+            editProfile();
+        }
+        System.out.println("Введите новый пароль: ");
+        String newPassword = scanner.nextLine();
+        System.out.println("Подтвердите пароль: ");
+        String confirm = scanner.nextLine();
+        if (newPassword.equals(confirm)) {
+            System.out.println("Пароли не совпадают! Попробуйте снова");
+            editProfile();
+        }
+        financeTracker.changePassword(newPassword);
+        System.out.println("Изменения сохранены");
+    }
+
+    private static void changeName() {
+        System.out.println("Введите новое имя: ");
+        String name = scanner.nextLine();
+        System.out.println("Подтвердите изменение (введите пароль): ");
+        String password = scanner.nextLine();
+        if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
+            System.out.println("Пароль неверный! Попробуйте снова");
+            changeName();
+            return;
+        }
+        financeTracker.changeName(name);
+        System.out.println("Изменения сохранены. Ваше новое имя: " + name);
     }
 }
