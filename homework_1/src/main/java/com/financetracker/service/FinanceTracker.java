@@ -11,6 +11,7 @@ public class FinanceTracker {
 
     public FinanceTracker() {
         users = new HashMap<>();
+        users.put("admin@example.ru", new User("admin@example.ru","admin123", "Admin", "admin"));
     }
 
     public boolean registerUser(String email, String password, String name, String status) {

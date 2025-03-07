@@ -1,7 +1,6 @@
 package com.financetracker.app;
 
 import com.financetracker.model.Transaction;
-import com.financetracker.model.User;
 import com.financetracker.service.FinanceTracker;
 
 import java.util.*;
