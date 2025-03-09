@@ -82,8 +82,9 @@ public class FinanceTrackerApp {
         while (true) {
             System.out.println("1. Управление транзакциями");
             System.out.println("2. Управление бюджетом");
-            System.out.println("3. Просмотреть профиль");
-            System.out.println("4. Просмотреть список пользователей");
+            System.out.println("3. Управление целями");
+            System.out.println("4. Просмотреть профиль");
+            System.out.println("5. Просмотреть список пользователей");
             System.out.println("0. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
@@ -97,9 +98,12 @@ public class FinanceTrackerApp {
                     manageBudget();
                     break;
                 case 3:
+                    manageGoals();
+                    break;
+                case 4:
                     viewProfile();
                     return;
-                case 4:
+                case 5:
                     viewUsersList();
                     break;
                 case 0:
@@ -186,7 +190,7 @@ public class FinanceTrackerApp {
             System.out.println("1. Изменить сумму");
             System.out.println("2. Изменить категорию");
             System.out.println("3. Изменить описание");
-            System.out.println("4. Выход");
+            System.out.println("0. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -206,7 +210,7 @@ public class FinanceTrackerApp {
                     String newDescription = scanner.nextLine();
                     transaction.setDescription(newDescription);
                     break;
-                case 4:
+                case 0:
                     return;
                 default:
                     System.out.println("Неверный выбор. Попробуйте снова");
@@ -308,7 +312,7 @@ public class FinanceTrackerApp {
             System.out.println("1. Изменить email");
             System.out.println("2. Изменить пароль");
             System.out.println("3. Изменить имя");
-            System.out.println("4. Выход");
+            System.out.println("0. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -322,7 +326,7 @@ public class FinanceTrackerApp {
                 case 3:
                     changeName();
                     break;
-                case 4:
+                case 0:
                     return;
                 default:
                     System.out.println("Неверный выбор. Попробуйте снова");
@@ -427,7 +431,43 @@ public class FinanceTrackerApp {
         }
     }
 
+    // GOAL MANAGE
 
+    private static void manageGoals() {
+
+        String id = financeTracker.getCurrentUser().getId();
+        while (true) {
+            if (!financeTracker.isGoalSet(id)) {
+                System.out.println("Цель не установлена");
+            } else {
+                System.out.println("Цель: " + financeTracker.getGoalName(id));
+                System.out.println("Целевая сумма: " + financeTracker.getTargetAmount(id));
+                System.out.println("Прогресс по цели: " + financeTracker.getProgress(id) + "%");
+                if (financeTracker.getProgress(id) >= 100) {
+                    System.out.println("Вы достигли своей цели!");
+                }
+            }
+
+            System.out.println("1. Установить новую цель");
+            System.out.println("0. Выход");
+            System.out.println("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    System.out.println("Введите название цели: ");
+                    String name = scanner.nextLine();
+                    System.out.println("Введите целевую сумму: ");
+                    double target = scanner.nextDouble();
+                    financeTracker.setGoal(id, name, target);
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
 
 // ADMIN FEATURES
     private static void viewUsersList() {
@@ -435,7 +475,7 @@ public class FinanceTrackerApp {
         while (true) {
             System.out.println("1. Просмотреть транзакции пользователя");
             System.out.println("2. Удалить/заблокировать пользователя");
-            System.out.println("3. Выход");
+            System.out.println("0. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -448,7 +488,7 @@ public class FinanceTrackerApp {
                 case 2:
                     deleteOrBanUser();
                     break;
-                case 3:
+                case 0:
                     return;
                 default:
                     System.out.println("Неверный выбор. Попробуйте снова");

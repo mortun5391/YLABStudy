@@ -1,6 +1,7 @@
 package com.financetracker.service;
 
 import com.financetracker.model.BudgetRecord;
+import com.financetracker.model.Goal;
 import com.financetracker.model.Transaction;
 import com.financetracker.model.User;
 
@@ -10,6 +11,7 @@ public class FinanceTracker {
     private Map<String, User> users;
     private Map<String, User> emailToUserMap;
     private Map<String, BudgetRecord> budgets;
+    private Map<String, Goal> goals;
     private User currentUser;
 
 
@@ -17,6 +19,7 @@ public class FinanceTracker {
         users = new HashMap<>();
         emailToUserMap = new HashMap<>();
         budgets = new HashMap<>();
+        goals = new HashMap<>();
         User admin = new User("admin@example.ru","admin123", "Admin", "admin");
         users.put(admin.getId(), admin);
         emailToUserMap.put(admin.getEmail(), admin);
@@ -68,6 +71,9 @@ public class FinanceTracker {
                                String description, boolean isIncome) {
         if (currentUser != null) {
             currentUser.addTransaction(new Transaction(id, amount, category, date, description, isIncome));
+            if (isGoalSet(currentUser.getId()) && isIncome) {
+                addAmount(currentUser.getId(), amount);
+            }
         }
     }
 
@@ -169,5 +175,28 @@ public class FinanceTracker {
 
     public double getRemaining(String id) {
         return budgets.get(id).getBudget() - budgets.get(id).getExpress();
+    }
+
+    public void setGoal(String id, String name, double target) {
+        goals.put(id, new Goal(target, name));
+    }
+
+    public void addAmount(String id, double amount) {
+        goals.get(id).addCurrentAmount(amount);
+    }
+
+    public boolean isGoalSet(String id) {
+        return goals.containsKey(id);
+    }
+    public int getProgress(String id) {
+        return goals.get(id).getProgress();
+    }
+
+    public double getTargetAmount(String id) {
+        return goals.get(id).getTargetAmount();
+    }
+
+    public String getGoalName(String id) {
+        return goals.get(id).getGoalName();
     }
 }
