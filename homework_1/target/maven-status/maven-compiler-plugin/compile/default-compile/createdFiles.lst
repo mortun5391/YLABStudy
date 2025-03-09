@@ -1,3 +1,5 @@
+com\financetracker\service\NotificationService.class
+com\financetracker\service\ConsoleNotificationService.class
 com\financetracker\model\Transaction.class
 com\financetracker\service\FinanceTracker.class
 com\financetracker\model\Goal.class

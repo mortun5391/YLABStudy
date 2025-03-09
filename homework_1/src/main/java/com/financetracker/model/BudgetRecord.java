@@ -1,10 +1,18 @@
 package com.financetracker.model;
-
+/**
+ * Класс, представляющий запись о бюджете за определённый месяц.
+ */
 public class BudgetRecord {
     private String month;
     private double budget;
     private double express;
 
+    /**
+     * Создаёт новую запись о бюджете.
+     *
+     * @param month  Месяц и год в формате "yyyy-MM".
+     * @param budget Установленный бюджет.
+     */
     public BudgetRecord(String month, double budget) {
         this.month = month;
         this.budget = budget;
@@ -12,31 +20,39 @@ public class BudgetRecord {
 
     }
 
+    /**
+     * Добавляет расходы
+     * @param express - новый расход
+     */
+
     public void addExpress(double express) {
         this.express += express;
     }
 
+    /**
+     * Возвращает расходы за установленный месяц.
+     *
+     * @return Расходы.
+     */
     public double getExpress() {
         return express;
     }
 
-    public void setExpress(double express) {
-        this.express = express;
-    }
-
+    /**
+     * Возвращает месяц и год.
+     *
+     * @return Месяц и год в формате "yyyy-MM".
+     */
     public String getMonth() {
         return month;
     }
 
-    public void setMonth(String month) {
-        this.month = month;
-    }
-
+    /**
+     * Возвращает установленный бюджет.
+     *
+     * @return Бюджет.
+     */
     public double getBudget() {
         return budget;
-    }
-
-    public void setBudget(double budget) {
-        this.budget = budget;
     }
 }
