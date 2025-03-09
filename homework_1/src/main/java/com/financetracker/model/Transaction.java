@@ -1,6 +1,7 @@
 package com.financetracker.model;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Класс, представляющий финансовую транзакцию (доход или расход).
@@ -16,16 +17,15 @@ public class Transaction {
     /**
      * Создаёт новую транзакцию.
      *
-     * @param id          Уникальный идентификатор транзакции.
      * @param amount      Сумма транзакции.
      * @param category    Категория транзакции.
      * @param date        Дата транзакции.
      * @param description Описание транзакции.
      * @param isIncome    Тип транзакции (true — доход, false — расход).
      */
-    public Transaction(String id, double amount, String category, LocalDate date,
+    public Transaction(double amount, String category, LocalDate date,
                        String description, boolean isIncome) {
-        this.id = id;
+        this.id = UUID.randomUUID().toString().substring(0,8);
         this.amount = amount;
         this.category = category;
         this.date = date;

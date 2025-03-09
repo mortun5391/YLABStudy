@@ -176,7 +176,6 @@ public class FinanceTracker {
      * Если транзакция является доходом и у пользователя установлена финансовая цель,
      * сумма транзакции добавляется к цели.
      *
-     * @param id уникальный идентификатор транзакции.
      * @param amount сумма транзакции.
      * @param category категория транзакции.
      * @param date дата транзакции.
@@ -184,14 +183,21 @@ public class FinanceTracker {
      * @param isIncome true, если транзакция является доходом; false, если расходом.
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
-    public void addTransaction(String id, double amount, String category, LocalDate date,
+    public void addTransaction(double amount, String category, LocalDate date,
                                String description, boolean isIncome) {
         if (currentUser == null) {
             throw new IllegalStateException("No user is currently logged in");
         }
-        currentUser.addTransaction(new Transaction(id, amount, category, date, description, isIncome));
-        if (isGoalSet(currentUser.getId()) && isIncome) {
-            addAmount(currentUser.getId(), amount);
+        currentUser.addTransaction(new Transaction(amount, category, date, description, isIncome));
+        String id = getCurrentUser().getId();
+        if (isGoalSet(id) && isIncome) {
+            addAmount(id, amount);
+        }
+
+        if (isBudgetSet(id)) {
+            if (!isIncome && date.toString().substring(0,7).equals(getMonth(id))) {
+                addMonthlyExpress(id, amount);
+            }
         }
     }
 

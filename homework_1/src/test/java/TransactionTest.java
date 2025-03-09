@@ -7,10 +7,9 @@ public class TransactionTest {
     @Test
     void testTransactionGettersAndSetters() {
         // Создаем объект Transaction
-        Transaction transaction = new Transaction("1", 1000, "Еда", LocalDate.of(2023, 10, 1), "Обед в кафе", false);
+        Transaction transaction = new Transaction( 1000, "Еда", LocalDate.of(2023, 10, 1), "Обед в кафе", false);
 
         // Проверяем геттеры
-        assertEquals("1", transaction.getId());
         assertEquals(1000, transaction.getAmount());
         assertEquals("Еда", transaction.getCategory());
         assertEquals(LocalDate.of(2023, 10, 1), transaction.getDate());
