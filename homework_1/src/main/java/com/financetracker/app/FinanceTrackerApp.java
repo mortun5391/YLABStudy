@@ -4,6 +4,8 @@ import com.financetracker.model.Transaction;
 import com.financetracker.service.FinanceTracker;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 public class FinanceTrackerApp {
     private static FinanceTracker financeTracker = new FinanceTracker();
     private static Scanner scanner = new Scanner(System.in);
@@ -64,6 +66,10 @@ public class FinanceTrackerApp {
         String password = scanner.nextLine();
 
         if (financeTracker.loginUser(email, password)) {
+            if (financeTracker.getCurrentUser().getStatus().equals("banned")) {
+                System.out.println("Ваш аккаунт заблокирован!");
+                return;
+            }
             System.out.println("Вход выполнен успешно");
             userMenu();
         }
@@ -76,9 +82,11 @@ public class FinanceTrackerApp {
         while (true) {
             System.out.println("1. Добавить транзакцию");
             System.out.println("2. Удалить транзакцию");
-            System.out.println("3. Просмотреть транзакции");
-            System.out.println("4. Просмотреть профиль");
-            System.out.println("5. Выход");
+            System.out.println("3. Редактировать транзакцию");
+            System.out.println("4. Просмотреть транзакции");
+            System.out.println("5. Просмотреть профиль");
+            System.out.println("6. Просмотреть список пользователей");
+            System.out.println("7. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -91,12 +99,18 @@ public class FinanceTrackerApp {
                     removeTransaction();
                     break;
                 case 3:
-                    viewTransactions();
+                    editTransaction();
                     break;
                 case 4:
-                    viewProfile();
+                    viewTransactions(financeTracker.getCurrentUser().getId());
                     break;
                 case 5:
+                    viewProfile();
+                    return;
+                case 6:
+                    viewUsersList();
+                    break;
+                case 7:
                     financeTracker.logoutUser();
                     return;
                 default:
@@ -132,19 +146,104 @@ public class FinanceTrackerApp {
         System.out.println("Транзакция удалена");
     }
 
-    private static void viewTransactions() {
-        List<Transaction> transactions = financeTracker.getTransactions();
-        if (transactions.isEmpty()) {
-            System.out.println("Список транзакций пуст");
+    private static void editTransaction() {
+        System.out.println("Введите ID транзакции для редактирования");
+        String id = scanner.nextLine();
+        Transaction transaction = financeTracker.getTransaction(id);
+        if (transaction == null) {
+            System.out.println("Транзакция не найдена");
+            return;
         }
-        else {
-            for (Transaction transaction : transactions) {
-                System.out.println("ID: " + transaction.getId() +
-                        ", Сумма: " + transaction.getAmount() +
-                        ", Категория: " + transaction.getCategory() +
-                        ", Дата: " + transaction.getDate() +
-                        ", Описание: " + transaction.getDescription() +
-                        ", Тип: " + (transaction.isIncome() ? "Доход" : "Расход"));
+        while (true) {
+            System.out.println("1. Изменить сумму");
+            System.out.println("2. Изменить категорию");
+            System.out.println("3. Изменить описание");
+            System.out.println("4. Выход");
+            System.out.println("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    System.out.println("Введите новую сумму: ");
+                    double newAmount = scanner.nextDouble();
+                    transaction.setAmount(newAmount);
+                    break;
+                case 2:
+                    System.out.println("Введите новую категорию: ");
+                    String newCategory = scanner.nextLine();
+                    transaction.setCategory(newCategory);
+                    break;
+                case 3:
+                    System.out.println("Введите новое описание: ");
+                    String newDescription = scanner.nextLine();
+                    transaction.setDescription(newDescription);
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+    private static void viewTransactions(String id) {
+
+        while (true) {
+            System.out.println("Выберите тип фильтра: ");
+            System.out.println("1. Без фильтра");
+            System.out.println("2. По дате");
+            System.out.println("3. По категории");
+            System.out.println("4. По доходу (доход/расход)");
+            System.out.println("0. Выход");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            Map<String, Transaction> transactions = financeTracker.getTransactions(id);
+            List<Transaction> filteredTransactions;
+            switch (choice) {
+                case 1:
+                    filteredTransactions = transactions.values().stream().toList();
+                    break;
+                case 2:
+                    System.out.println("Введите дату для фильтрации: ");
+                    String dateFilter = scanner.nextLine().trim();
+                    filteredTransactions = transactions.values().stream()
+                            .filter(transaction -> transaction.getDate().equals(dateFilter))
+                            .collect(Collectors.toList());
+                    break;
+                case 3:
+                    System.out.println("Введите категорию для фильтрации: ");
+                    String categoryFilter = scanner.nextLine().trim();
+                    filteredTransactions = transactions.values().stream()
+                            .filter(transaction -> transaction.getCategory().equals(categoryFilter))
+                            .collect(Collectors.toList());
+                    break;
+                case 4:
+                    System.out.println("Доход/расход? (введите true/false): ");
+                    boolean isIncomeFilter = scanner.nextBoolean();
+                    filteredTransactions = transactions.values().stream()
+                            .filter(transaction -> transaction.isIncome() == isIncomeFilter)
+                            .collect(Collectors.toList());
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+                    continue;
+            }
+
+
+            if (filteredTransactions.isEmpty()) {
+                System.out.println("Список транзакций пуст");
+            } else {
+                System.out.println("Список транзакций: ");
+                for (Transaction transaction : filteredTransactions) {
+                    System.out.println("ID: " + transaction.getId() +
+                            ", Сумма: " + transaction.getAmount() +
+                            ", Категория: " + transaction.getCategory() +
+                            ", Дата: " + transaction.getDate() +
+                            ", Описание: " + transaction.getDescription() +
+                            ", Тип: " + (transaction.isIncome() ? "Доход" : "Расход"));
+                }
             }
         }
     }
@@ -153,14 +252,20 @@ public class FinanceTrackerApp {
         financeTracker.viewProfile();
         while (true) {
             System.out.println("1. Изменить профиль" +
-                             "\n2. Выход" +
+                             "\n2. Удалить профиль" +
+                             "\n3. Выход" +
                              "\nВыберите действие: ");
             int choice = scanner.nextInt();
+            scanner.nextLine();
             switch (choice) {
                 case 1:
                     editProfile();
                     break;
                 case 2:
+                    deleteProfile();
+                    return;
+                case 3:
+                    userMenu();
                     return;
                 default:
                     System.out.println("Неверный выбор. Попробуйте снова");
@@ -168,6 +273,8 @@ public class FinanceTrackerApp {
         }
     }
 
+
+    // PROFILE SETTINGS
     private static void editProfile() {
         while (true) {
             System.out.println("1. Изменить email");
@@ -240,4 +347,61 @@ public class FinanceTrackerApp {
         financeTracker.changeName(name);
         System.out.println("Изменения сохранены. Ваше новое имя: " + name);
     }
+    private static void deleteProfile() {
+        System.out.println("Вы уверены что хотите удалить аккаунт? Для подтверждения введите пароль: ");
+        String password = scanner.nextLine();
+        if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
+            System.out.println("Пароль неверный! Попробуйте снова");
+            viewProfile();
+            return;
+            // TODO: РЕАЛИЗОВАТЬ повторный ввод пароля либо выход в предыдущий шаг(просмотр профиля)
+        }
+        financeTracker.deleteUser(financeTracker.getCurrentUser().getId());
+        System.out.println("Ваш профиль удален!");
+
+    }
+
+// ADMIN FEATURES
+    private static void viewUsersList() {
+        financeTracker.viewUsersList();
+        while (true) {
+            System.out.println("1. Просмотреть транзакции пользователя");
+            System.out.println("2. Удалить/заблокировать пользователя");
+            System.out.println("3. Выход");
+            System.out.println("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    System.out.println("Введите id пользователя: ");
+                    String id = scanner.nextLine();
+                    viewTransactions(id);
+                    break;
+                case 2:
+                    deleteOrBanUser();
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+    private static void deleteOrBanUser() {
+        System.out.println("Введите id пользователя: ");
+        String id = scanner.nextLine();
+        System.out.println("Выберите, удалить или заблокировать пользователя (введите delete/ban): ");
+        String newStatus = scanner.nextLine();
+        if (newStatus.equals("ban")) {
+            financeTracker.getUser(id).setStatus("banned");
+        } else if (newStatus.equals("delete")) {
+            financeTracker.deleteUser(id);
+        }
+        else {
+            System.out.println("Неверный ввод. Попробуйте снова");
+        }
+    }
+
+
 }
