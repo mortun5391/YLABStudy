@@ -1,16 +1,23 @@
 package com.financetracker.app;
 
 import com.financetracker.model.Transaction;
+import com.financetracker.service.ConsoleNotificationService;
 import com.financetracker.service.FinanceTracker;
+import com.financetracker.service.NotificationService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FinanceTrackerApp {
-    private static FinanceTracker financeTracker = new FinanceTracker();
+    private static FinanceTracker financeTracker;
     private static Scanner scanner = new Scanner(System.in);
 
+
     public static void main(String[] args) {
+        NotificationService notificationService = new ConsoleNotificationService();
+        financeTracker = new FinanceTracker(notificationService);
         while (true) {
             System.out.println("1. Регистрация");
             System.out.println("2. Вход");
@@ -83,8 +90,9 @@ public class FinanceTrackerApp {
             System.out.println("1. Управление транзакциями");
             System.out.println("2. Управление бюджетом");
             System.out.println("3. Управление целями");
-            System.out.println("4. Просмотреть профиль");
-            System.out.println("5. Просмотреть список пользователей");
+            System.out.println("4. Статистика и аналитика");
+            System.out.println("5. Просмотреть профиль");
+            System.out.println("6. Просмотреть список пользователей");
             System.out.println("0. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
@@ -101,9 +109,12 @@ public class FinanceTrackerApp {
                     manageGoals();
                     break;
                 case 4:
+                    manageStatistic();
+                    break;
+                case 5:
                     viewProfile();
                     return;
-                case 5:
+                case 6:
                     viewUsersList();
                     break;
                 case 0:
@@ -152,8 +163,8 @@ public class FinanceTrackerApp {
         scanner.nextLine();
         System.out.println("Введите категорию: ");
         String category = scanner.nextLine();
-        System.out.println("Введите дату: ");
-        String date = scanner.nextLine();
+        System.out.println("Введите дату (гггг-мм-дд): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
         System.out.println("Введите описание: ");
         String description = scanner.nextLine();
         System.out.println("Это доход? (true/false): ");
@@ -164,7 +175,7 @@ public class FinanceTrackerApp {
         System.out.println("Транзакция добавлена");
         id = financeTracker.getCurrentUser().getId();
         if (financeTracker.isBudgetSet(id)) {
-            if (!isIncome && date.substring(0,7).equals(financeTracker.getMonth(id))) {
+            if (!isIncome && date.toString().substring(0,7).equals(financeTracker.getMonth(id))) {
                 financeTracker.addMonthlyExpress(id, amount);
             }
         }
@@ -236,10 +247,10 @@ public class FinanceTrackerApp {
                     filteredTransactions = transactions.values().stream().toList();
                     break;
                 case 2:
-                    System.out.println("Введите дату для фильтрации: ");
-                    String dateFilter = scanner.nextLine().trim();
+                    System.out.println("Введите дату для фильтрации(гггг-мм-дд): ");
+                    LocalDate dateFilter = LocalDate.parse(scanner.nextLine().trim());
                     filteredTransactions = transactions.values().stream()
-                            .filter(transaction -> transaction.getDate().equals(dateFilter))
+                            .filter(transaction -> transaction.getDate().isEqual(dateFilter))
                             .collect(Collectors.toList());
                     break;
                 case 3:
@@ -272,7 +283,7 @@ public class FinanceTrackerApp {
                     System.out.println("ID: " + transaction.getId() +
                             ", Сумма: " + transaction.getAmount() +
                             ", Категория: " + transaction.getCategory() +
-                            ", Дата: " + transaction.getDate() +
+                            ", Дата: " + transaction.getDate().toString() +
                             ", Описание: " + transaction.getDescription() +
                             ", Тип: " + (transaction.isIncome() ? "Доход" : "Расход"));
                 }
@@ -373,7 +384,6 @@ public class FinanceTrackerApp {
         String password = scanner.nextLine();
         if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
             System.out.println("Пароль неверный! Попробуйте снова");
-            changeName();
             return;
         }
         financeTracker.changeName(name);
@@ -450,14 +460,14 @@ public class FinanceTrackerApp {
 
             System.out.println("1. Установить новую цель");
             System.out.println("0. Выход");
-            System.out.println("Выберите действие: ");
+            System.out.print("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    System.out.println("Введите название цели: ");
+                    System.out.print("Введите название цели: ");
                     String name = scanner.nextLine();
-                    System.out.println("Введите целевую сумму: ");
+                    System.out.print("Введите целевую сумму: ");
                     double target = scanner.nextDouble();
                     financeTracker.setGoal(id, name, target);
                     break;
@@ -469,19 +479,74 @@ public class FinanceTrackerApp {
         }
     }
 
+    // STATISTICS
+
+    private static void manageStatistic() { //TODO: add move 2-4
+        while (true) {
+            System.out.println("1. Показать текущий баланс");
+            System.out.println("2. Показать доходы и расходы за период");
+            System.out.println("3. Показать расходы по категориям");
+            System.out.println("4. Сформировать отчёт");
+            System.out.println("0. Выход");
+            System.out.print("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            String id = financeTracker.getCurrentUser().getId();
+            switch (choice) {
+                case 1:
+                    System.out.println("Текущий баланс: " + financeTracker.getBalance(id));
+                    break;
+                case 2:
+                    System.out.print("Введите дату начала периода (гггг-мм-дд): ");
+                    LocalDate start = LocalDate.parse(scanner.nextLine());
+                    System.out.print("Введите дату конца периода (гггг-мм-дд): ");
+                    LocalDate end = LocalDate.parse(scanner.nextLine());
+                    System.out.println("Суммарный доход за период: " + financeTracker.getIncomeOfPeriod(id, start, end));
+                    System.out.println("Суммарный расход за период: " + financeTracker.getExpensesOfPeriod(id, start, end));
+                    break;
+                case 3:
+                    System.out.print("Введите дату начала периода (гггг-мм-дд): ");
+                    start = LocalDate.parse(scanner.nextLine());
+                    System.out.print("Введите дату конца периода (гггг-мм-дд): ");
+                    end = LocalDate.parse(scanner.nextLine());
+                    System.out.println("Расходы по категориям за период: ");
+                    financeTracker.getExpensesByCategory(id, start, end).forEach((category, amount) ->
+                            System.out.printf("- %s: %.2f\n", category, amount));
+                    break;
+                case 4:
+                    System.out.print("Введите дату начала периода (гггг-мм-дд): ");
+                    start = LocalDate.parse(scanner.nextLine());
+                    System.out.print("Введите дату конца периода (гггг-мм-дд): ");
+                    end = LocalDate.parse(scanner.nextLine());
+                    System.out.println(financeTracker.generateReport(id, start, end));
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+    // TODO: add notification
+
 // ADMIN FEATURES
     private static void viewUsersList() {
-        financeTracker.viewUsersList();
+        if (!financeTracker.getCurrentUser().getStatus().equals("admin")) {
+            System.out.println("У вас нет права доступа!");
+            return;
+        }
         while (true) {
+            financeTracker.viewUsersList();
             System.out.println("1. Просмотреть транзакции пользователя");
             System.out.println("2. Удалить/заблокировать пользователя");
             System.out.println("0. Выход");
-            System.out.println("Выберите действие: ");
+            System.out.print("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    System.out.println("Введите id пользователя: ");
+                    System.out.print("Введите id пользователя: ");
                     String id = scanner.nextLine();
                     viewTransactions(id);
                     break;
@@ -497,9 +562,13 @@ public class FinanceTrackerApp {
     }
 
     private static void deleteOrBanUser() {
-        System.out.println("Введите id пользователя: ");
+        System.out.print("Введите id пользователя: ");
         String id = scanner.nextLine();
-        System.out.println("Выберите, удалить или заблокировать пользователя (введите delete/ban): ");
+        if (financeTracker.getUser(id).getStatus().equals("admin")) {
+            System.out.println("Вы не можете блокировать или удалять аккаунт администратора!");
+            return;
+        }
+        System.out.print("Выберите, удалить или заблокировать пользователя (введите delete/ban): ");
         String newStatus = scanner.nextLine();
         if (newStatus.equals("ban")) {
             financeTracker.getUser(id).setStatus("banned");

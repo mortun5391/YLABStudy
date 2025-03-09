@@ -1,14 +1,16 @@
 package com.financetracker.model;
 
+import java.time.LocalDate;
+
 public class Transaction {
     private String id;
     private double amount;
     private String category;
-    private String date;
+    private LocalDate date;
     private String description;
     private boolean isIncome;
 
-    public Transaction(String id, double amount, String category, String date, String description, boolean isIncome) {
+    public Transaction(String id, double amount, String category, LocalDate date, String description, boolean isIncome) {
         this.id = id;
         this.amount = amount;
         this.category = category;
@@ -29,7 +31,7 @@ public class Transaction {
         return category;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
