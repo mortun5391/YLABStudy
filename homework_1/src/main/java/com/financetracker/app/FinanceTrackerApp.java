@@ -14,7 +14,7 @@ public class FinanceTrackerApp {
         while (true) {
             System.out.println("1. Регистрация");
             System.out.println("2. Вход");
-            System.out.println("3. Выход");
+            System.out.println("0. Выход");
             System.out.print("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // consume newline
@@ -26,7 +26,7 @@ public class FinanceTrackerApp {
                 case 2:
                     loginUser();
                     break;
-                case 3:
+                case 0:
                     System.exit(0);
                     break;
                 default:
@@ -80,17 +80,47 @@ public class FinanceTrackerApp {
 
     private static void userMenu(){
         while (true) {
-            System.out.println("1. Добавить транзакцию");
-            System.out.println("2. Удалить транзакцию");
-            System.out.println("3. Редактировать транзакцию");
-            System.out.println("4. Просмотреть транзакции");
-            System.out.println("5. Просмотреть профиль");
-            System.out.println("6. Просмотреть список пользователей");
-            System.out.println("7. Выход");
+            System.out.println("1. Управление транзакциями");
+            System.out.println("2. Управление бюджетом");
+            System.out.println("3. Просмотреть профиль");
+            System.out.println("4. Просмотреть список пользователей");
+            System.out.println("0. Выход");
             System.out.println("Выберите действие: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
+            switch (choice) {
+                case 1:
+                    manageTransactions();
+                    break;
+                case 2:
+                    manageBudget();
+                    break;
+                case 3:
+                    viewProfile();
+                    return;
+                case 4:
+                    viewUsersList();
+                    break;
+                case 0:
+                    financeTracker.logoutUser();
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+    private static void manageTransactions() {
+        while (true) {
+            System.out.println("1. Добавить транзакцию");
+            System.out.println("2. Удалить транзакцию");
+            System.out.println("3. Редактировать транзакцию");
+            System.out.println("4. Просмотреть транзакции");
+            System.out.println("0. Выход");
+            System.out.println("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
             switch (choice) {
                 case 1:
                     addTransaction();
@@ -104,20 +134,12 @@ public class FinanceTrackerApp {
                 case 4:
                     viewTransactions(financeTracker.getCurrentUser().getId());
                     break;
-                case 5:
-                    viewProfile();
+                case 0:
                     return;
-                case 6:
-                    viewUsersList();
-                    break;
-                case 7:
-                    financeTracker.logoutUser();
-                    return;
-                default:
-                    System.out.println("Неверный выбор. Попробуйте снова");
             }
         }
     }
+
     private static void addTransaction() {
         System.out.println("Введите ID транзакции: ");
         String id = scanner.nextLine();
@@ -136,6 +158,12 @@ public class FinanceTrackerApp {
 
         financeTracker.addTransaction(id, amount, category, date, description, isIncome);
         System.out.println("Транзакция добавлена");
+        id = financeTracker.getCurrentUser().getId();
+        if (financeTracker.isBudgetSet(id)) {
+            if (!isIncome && date.substring(0,7).equals(financeTracker.getMonth(id))) {
+                financeTracker.addMonthlyExpress(id, amount);
+            }
+        }
     }
 
     private static void removeTransaction() {
@@ -360,6 +388,46 @@ public class FinanceTrackerApp {
         System.out.println("Ваш профиль удален!");
 
     }
+
+    // BUDGET MANAGE
+
+    private static void manageBudget() {
+        while (true) {
+            String id = financeTracker.getCurrentUser().getId();
+            if (!financeTracker.isBudgetSet(id)) {
+                System.out.println("Месячный бюджет не установлен");
+            } else {
+                System.out.println("Месячный бюджет: " + financeTracker.getMonthlyBudget(id));
+                System.out.println("Расходы за месяц: " + financeTracker.getMonthlyExpress(id));
+                System.out.println("Остаток бюджета: " + financeTracker.getRemaining(id));
+                if (financeTracker.getRemaining(id) < 0) {
+                    System.out.println("Внимание! Вы превысили месячный бюджет на " + Math.abs(financeTracker.getRemaining(id)));
+                }
+            }
+
+            System.out.println("1. Установить месячный бюджет");
+            System.out.println("0. Выход");
+            System.out.println("Выберите действие: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1:
+                    System.out.println("Введите месяц (гггг-мм) :");
+                    String month = scanner.nextLine();
+                    System.out.println("Введите сумму бюджета: ");
+                    double budget = scanner.nextDouble();
+                    financeTracker.addBudget(id, month, budget);
+                    System.out.println("Месячный бюджет установлен!");
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Неверный выбор. Попробуйте снова");
+            }
+        }
+    }
+
+
 
 // ADMIN FEATURES
     private static void viewUsersList() {

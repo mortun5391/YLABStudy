@@ -1,5 +1,6 @@
 package com.financetracker.service;
 
+import com.financetracker.model.BudgetRecord;
 import com.financetracker.model.Transaction;
 import com.financetracker.model.User;
 
@@ -8,11 +9,14 @@ import java.util.*;
 public class FinanceTracker {
     private Map<String, User> users;
     private Map<String, User> emailToUserMap;
+    private Map<String, BudgetRecord> budgets;
     private User currentUser;
+
 
     public FinanceTracker() {
         users = new HashMap<>();
         emailToUserMap = new HashMap<>();
+        budgets = new HashMap<>();
         User admin = new User("admin@example.ru","admin123", "Admin", "admin");
         users.put(admin.getId(), admin);
         emailToUserMap.put(admin.getEmail(), admin);
@@ -127,5 +131,43 @@ public class FinanceTracker {
                     user.getStatus()
             );
         }
+    }
+
+    public String getMonth(String id) {
+        return budgets.get(id).getMonth();
+    }
+
+    public void addBudget(String id, String month ,double budget) {
+        budgets.put(id, new BudgetRecord(month, budget));
+        Map<String, Transaction> transactions = getTransactions(id);
+        for (Transaction transaction : transactions.values()) {
+            if (!transaction.isIncome() && transaction.getDate().substring(0,7).equals(month)) {
+                addMonthlyExpress(id, transaction.getAmount());
+            }
+        }
+    }
+
+    public boolean isBudgetSet(String id) {
+        return budgets.containsKey(id);
+    }
+
+    public double getMonthlyBudget(String id) {
+        return budgets.get(id).getBudget();
+    }
+
+    public void setMonthlyBudget(String id, double budget) {
+        budgets.get(id).setBudget(budget);
+    }
+
+    public double getMonthlyExpress(String id) {
+        return budgets.get(id).getExpress();
+    }
+
+    public void addMonthlyExpress(String id, double express) {
+        budgets.get(id).addExpress(express);
+    }
+
+    public double getRemaining(String id) {
+        return budgets.get(id).getBudget() - budgets.get(id).getExpress();
     }
 }
