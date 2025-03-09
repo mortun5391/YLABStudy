@@ -15,7 +15,7 @@ HOMEWORK 1
 
 ```bash
 git clone https://github.com/mortun5391/YLABStudy.git
-cd FinanceTracker
+cd homework_1
 ```
 
 ### 2. Соберите проект с помощью Maven
