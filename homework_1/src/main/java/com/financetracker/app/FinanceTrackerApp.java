@@ -1,10 +1,7 @@
 package com.financetracker.app;
 
 import com.financetracker.model.Transaction;
-import com.financetracker.service.ConsoleNotificationService;
-import com.financetracker.service.FinanceTracker;
-import com.financetracker.service.InputValidator;
-import com.financetracker.service.NotificationService;
+import com.financetracker.service.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -18,8 +15,8 @@ import java.util.stream.Collectors;
  */
 public class FinanceTrackerApp {
     private static FinanceTracker financeTracker;
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final InputValidator inputValidator = new InputValidator(scanner);
+    private static final InputProvider inputProvider = new ScannerInputProvider(new Scanner(System.in));
+    private static final InputValidator inputValidator = new InputValidator(inputProvider);
 
     /**
      * Точка входа в приложение.
@@ -307,7 +304,7 @@ public class FinanceTrackerApp {
         while (true) {
             System.out.println("1. Изменить профиль" +
                              "\n2. Удалить профиль" +
-                             "\n3. Выход");
+                             "\n0. Выход");
             int choice = inputValidator.getIntInput("Выберите действие: ");
             switch (choice) {
                 case 1:
@@ -316,7 +313,7 @@ public class FinanceTrackerApp {
                 case 2:
                     deleteProfile();
                     return;
-                case 3:
+                case 0:
                     userMenu();
                     return;
                 default:
@@ -383,7 +380,7 @@ public class FinanceTrackerApp {
         }
         String newPassword = inputValidator.getStringInput("Введите новый пароль: ");
         String confirm = inputValidator.getStringInput("Подтвердите пароль: ");
-        if (newPassword.equals(confirm)) {
+        if (!newPassword.equals(confirm)) {
             System.out.println("Пароли не совпадают! Попробуйте снова");
             return;
         }

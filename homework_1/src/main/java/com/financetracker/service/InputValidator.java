@@ -9,11 +9,12 @@ import java.util.Scanner;
  * Класс для обработки ввода данных с проверкой корректности.
  */
 public class InputValidator {
-    private Scanner scanner;
+    private InputProvider inputProvider;
 
-    public InputValidator(Scanner scanner) {
-        this.scanner = scanner;
+    public InputValidator(InputProvider inputProvider) {
+        this.inputProvider = inputProvider;
     }
+
 
     /**
      * Запрашивает у пользователя ввод целого числа и проверяет его корректность.
@@ -25,11 +26,11 @@ public class InputValidator {
         while (true) {
             try {
                 System.out.print(prompt);
-                return scanner.nextInt();
+                return inputProvider.nextInt();
             } catch (InputMismatchException e) {
                 System.out.println("Ошибка: введите целое число.");
             } finally {
-                scanner.nextLine(); // Очистка буфера после ввода
+                inputProvider.nextLine(); // Очистка буфера после ввода
             }
         }
     }
@@ -44,11 +45,11 @@ public class InputValidator {
         while (true) {
             try {
                 System.out.print(prompt);
-                return scanner.nextDouble();
+                return inputProvider.nextDouble();
             } catch (InputMismatchException e) {
                 System.out.println("Ошибка: введите число.");
             } finally {
-                scanner.nextLine(); // Очистка буфера после ввода
+                inputProvider.nextLine(); // Очистка буфера после ввода
             }
         }
     }
@@ -63,7 +64,7 @@ public class InputValidator {
         LocalDate date = null;
         while (date == null) {
             System.out.print(prompt);
-            String dateInput = scanner.nextLine();
+            String dateInput = inputProvider.nextLine();
             try {
                 date = LocalDate.parse(dateInput);
             } catch (DateTimeParseException e) {
@@ -82,7 +83,7 @@ public class InputValidator {
     public boolean getBooleanInput(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String input = scanner.nextLine();
+            String input = inputProvider.nextLine();
             if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
                 return Boolean.parseBoolean(input);
             } else {
@@ -100,7 +101,7 @@ public class InputValidator {
     public String getStringInput(String prompt) {
         while (true) {
             System.out.print(prompt);
-            String input = scanner.nextLine().trim();
+            String input = inputProvider.nextLine().trim();
             if (!input.isEmpty()) {
                 return input;
             } else {
