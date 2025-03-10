@@ -6,14 +6,13 @@ import com.financetracker.model.Transaction;
 import com.financetracker.model.User;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
  * Класс FinanceTracker представляет собой систему управления финансами,
  * которая позволяет регистрировать пользователей, управлять их транзакциями,
  * бюджетами и финансовыми целями, а также отправлять уведомления.
- *
+ * <p>
  * Основные функции:
  * - Регистрация и аутентификация пользователей.
  * - Управление транзакциями, бюджетами и целями.
