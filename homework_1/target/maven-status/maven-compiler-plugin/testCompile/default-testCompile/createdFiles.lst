@@ -1,0 +1,10 @@
+NotificationServiceTest.class
+InputValidatorTest.class
+ConsoleNotificationServiceTest.class
+UserTest.class
+TransactionTest.class
+FinanceTrackerTest.class
+BudgetRecordTest.class
+GoalTest.class
+InputSimulator.class
+ScannerInputProviderTest.class

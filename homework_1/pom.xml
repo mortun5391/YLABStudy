@@ -51,6 +51,13 @@
             <version>3.24.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <version>2.1.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
