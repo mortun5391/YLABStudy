@@ -235,7 +235,7 @@ class FinanceTrackerAppTest {
     @Test
     void testAdminViewUsersList() {
         String input =
-                "2\nadmin@example.ru\nadmin123\n" + // Вход администратора
+                "2\nadmin@example.com\nadmin123\n" + // Вход администратора
                 "6\n0\n" + // Просмотр списка пользователей
                 "0\n0\n"; // Выход
         prepareInput(input);
@@ -244,14 +244,14 @@ class FinanceTrackerAppTest {
 
         String output = outputStream.toString();
         assertTrue(output.contains("Список пользователей:"));
-        assertTrue(output.contains("admin@example.ru"));
+        assertTrue(output.contains("admin@example.com"));
     }
 
     @Test
     void testAdminDeleteOrBanUser() {
 
         String input =
-                "2\nadmin@example.ru\nadmin123\n" + // Вход администратора
+                "2\nadmin@example.com\nadmin123\n" + // Вход администратора
                 "6\n2\nwrongID\n0\n0\n0\n"; // Выход
         prepareInput(input);
         FinanceTrackerApp.main(new String[]{});

@@ -276,7 +276,7 @@ class FinanceTrackerTest {
         financeTracker.registerUser("user1@example.com", "password1", "User One", "user");
         financeTracker.registerUser("user2@example.com", "password2", "User Two", "user");
 
-        financeTracker.loginUser("admin@example.ru", "admin123");
+        financeTracker.loginUser("admin@example.com", "admin123");
 
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));

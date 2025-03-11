@@ -72,7 +72,7 @@ public class FinanceTracker {
         emailToUserMap = new HashMap<>();
         budgets = new HashMap<>();
         goals = new HashMap<>();
-        User admin = new User("admin@example.ru","admin123", "Admin", "admin");
+        User admin = new User("admin@example.com","admin123", "Admin", "admin");
         users.put(admin.getId(), admin);
         emailToUserMap.put(admin.getEmail(), admin);
         this.notificationService = notificationService;
