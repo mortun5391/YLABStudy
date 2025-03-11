@@ -13,9 +13,8 @@ import java.util.stream.Collectors;
  * бюджетами, финансовыми целями, а также просматривать статистику и аналитику.
  */
 public class FinanceTrackerApp {
-    public static FinanceTracker financeTracker;
-    static final InputProvider inputProvider = new ScannerInputProvider(new Scanner(System.in));
-    public static InputValidator inputValidator = new InputValidator(inputProvider);
+    private static FinanceTracker financeTracker;
+    public static InputValidator inputValidator = new InputValidator( new ScannerInputProvider(new Scanner(System.in)));
 
 
 
@@ -40,8 +39,7 @@ public class FinanceTrackerApp {
                     loginUser();
                     break;
                 case 0:
-                    System.exit(0);
-                    break;
+                    return;
                 default:
                     System.out.println("Неверный выбор. Попробуйте снова");
             }
@@ -52,7 +50,7 @@ public class FinanceTrackerApp {
      * Регистрирует нового пользователя в системе.
      * Запрашивает email, пароль, имя и создаёт нового пользователя.
      */
-    public static void registerUser() {
+    private static void registerUser() {
         String email = inputValidator.getStringInput("Введите email: ");
         String password;
         while (true) {
@@ -76,7 +74,7 @@ public class FinanceTrackerApp {
      * Выполняет вход пользователя в систему.
      * Запрашивает email и пароль, проверяет их корректность.
      */
-    public static void loginUser() {
+    private static void loginUser() {
         String email = inputValidator.getStringInput("Введите email: ");
         String password = inputValidator.getStringInput("Введите пароль: ");
         if (financeTracker.loginUser(email, password)) {
@@ -96,7 +94,7 @@ public class FinanceTrackerApp {
      * Отображает меню пользователя после успешного входа в систему.
      * Позволяет управлять транзакциями, бюджетом, целями, просматривать статистику и профиль.
      */
-    public static void userMenu() {
+    private static void userMenu() {
         while (true) {
 
             System.out.println("1. Управление транзакциями");
@@ -140,7 +138,7 @@ public class FinanceTrackerApp {
      * Управление транзакциями пользователя.
      * Позволяет добавлять, удалять, редактировать и просматривать транзакции.
      */
-    public static void manageTransactions() {
+    private static void manageTransactions() {
         while (true) {
             System.out.println("1. Добавить транзакцию");
             System.out.println("2. Удалить транзакцию");
@@ -172,7 +170,7 @@ public class FinanceTrackerApp {
      * Добавляет новую транзакцию для текущего пользователя.
      * Запрашивает ID, сумму, категорию, дату, описание и тип транзакции (доход/расход).
      */
-    public static void addTransaction() {
+    private static void addTransaction() {
         double amount = inputValidator.getDoubleInput("Введите сумму: ");
         String category = inputValidator.getStringInput("Введите категорию: ");
         LocalDate date = inputValidator.getDateInput("Введите дату (гггг-мм-дд): ");
@@ -187,9 +185,12 @@ public class FinanceTrackerApp {
      * Удаляет транзакцию по её ID.
      * Запрашивает ID транзакции для удаления.
      */
-    public static void removeTransaction() {
-        String id = inputValidator.getStringInput("Введите ID транзакции для удаления");
-
+    private static void removeTransaction() {
+        String id = inputValidator.getStringInput("Введите ID транзакции для удаления: ");
+        if (financeTracker.getTransaction(id) == null) {
+            System.out.println("Транзакция не найдена");
+            return;
+        }
         financeTracker.removeTransaction(id);
         System.out.println("Транзакция удалена");
     }
@@ -198,7 +199,7 @@ public class FinanceTrackerApp {
      * Редактирует существующую транзакцию.
      * Позволяет изменить сумму, категорию или описание транзакции.
      */
-    public static void editTransaction() {
+    private static void editTransaction() {
         String id = inputValidator.getStringInput("Введите ID транзакции для редактирования: ");
         Transaction transaction = financeTracker.getTransaction(id);
         if (transaction == null) {
@@ -239,7 +240,7 @@ public class FinanceTrackerApp {
      *
      * @param id уникальный идентификатор пользователя.
      */
-    public static void viewTransactions(String id) {
+    private static void viewTransactions(String id) {
         while (true) {
 
             System.out.println("Выберите тип фильтра: ");
@@ -300,9 +301,9 @@ public class FinanceTrackerApp {
     /**
      * Отображает профиль текущего пользователя и предоставляет меню для его изменения или удаления.
      */
-    public static void viewProfile() {
-        financeTracker.viewProfile();
+    private static void viewProfile() {
         while (true) {
+            financeTracker.viewProfile();
             System.out.println("1. Изменить профиль" +
                              "\n2. Удалить профиль" +
                              "\n0. Выход");
@@ -329,7 +330,7 @@ public class FinanceTrackerApp {
      * Меню для редактирования профиля пользователя.
      * Позволяет изменить email, пароль или имя.
      */
-    static void editProfile() {
+    private static void editProfile() {
         while (true) {
             System.out.println("1. Изменить email");
             System.out.println("2. Изменить пароль");
@@ -358,7 +359,7 @@ public class FinanceTrackerApp {
      * Изменяет email текущего пользователя.
      * Запрашивает новый email и подтверждение пароля.
      */
-    static void changeEmail() {
+    private static void changeEmail() {
         String email = inputValidator.getStringInput("Введите новый email: ");
         String password = inputValidator.getStringInput("Подтвердите изменение (введите пароль): ");
         if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
@@ -373,7 +374,7 @@ public class FinanceTrackerApp {
      * Изменяет имя текущего пользователя.
      * Запрашивает новое имя и подтверждение пароля.
      */
-    static void changePassword() {
+    private static void changePassword() {
         String oldPassword = inputValidator.getStringInput("Введите старый пароль: ");
         if (!oldPassword.equals(financeTracker.getCurrentUser().getPassword())) {
             System.out.println("Пароль неверный! Попробуйте снова");
@@ -393,7 +394,7 @@ public class FinanceTrackerApp {
      * Удаляет профиль текущего пользователя.
      * Запрашивает подтверждение пароля для удаления.
      */
-    static void changeName() {
+    private static void changeName() {
         String name = inputValidator.getStringInput("Введите новое имя: ");
         String password = inputValidator.getStringInput("Подтвердите изменение (введите пароль): ");
         if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
@@ -408,7 +409,7 @@ public class FinanceTrackerApp {
      * Удаляет профиль текущего пользователя.
      * Запрашивает подтверждение пароля для удаления.
      */
-    static void deleteProfile() {
+    private static void deleteProfile() {
 
         String password = inputValidator.getStringInput("Вы уверены что хотите удалить аккаунт? Для подтверждения введите пароль: ");
         if (!password.equals(financeTracker.getCurrentUser().getPassword())) {
@@ -426,7 +427,7 @@ public class FinanceTrackerApp {
      * Управление месячным бюджетом пользователя.
      * Позволяет установить бюджет и просмотреть текущие расходы и остаток.
      */
-    public static void manageBudget() {
+    private static void manageBudget() {
         while (true) {
             String id = financeTracker.getCurrentUser().getId();
             if (!financeTracker.isBudgetSet(id)) {
@@ -462,7 +463,7 @@ public class FinanceTrackerApp {
      * Управление финансовыми целями пользователя.
      * Позволяет установить новую цель и просмотреть прогресс по текущей цели.
      */
-    public static void manageGoals() {
+    private static void manageGoals() {
         String id = financeTracker.getCurrentUser().getId();
         while (true) {
             if (!financeTracker.isGoalSet(id)) {
@@ -484,6 +485,7 @@ public class FinanceTrackerApp {
                     String name = inputValidator.getStringInput("Введите название цели: ");
                     double target = inputValidator.getDoubleInput("Введите целевую сумму: ");
                     financeTracker.setGoal(id, name, target);
+                    System.out.println("Цель установлена!");
                     break;
                 case 0:
                     return;
@@ -498,7 +500,7 @@ public class FinanceTrackerApp {
      * Управление статистикой и аналитикой пользователя.
      * Позволяет просмотреть баланс, доходы и расходы за период, расходы по категориям и сформировать отчёт.
      */
-    public static void manageStatistic() { //TODO: add move 2-4 (DONE)
+    private static void manageStatistic() { //TODO: add move 2-4 (DONE)
         while (true) {
             System.out.println("1. Показать текущий баланс");
             System.out.println("2. Показать доходы и расходы за период");
@@ -544,7 +546,7 @@ public class FinanceTrackerApp {
      * Просмотр списка пользователей (доступно только администратору).
      * Позволяет просматривать транзакции пользователей, удалять или блокировать их.
      */
-    static void viewUsersList() {
+    private static void viewUsersList() {
         if (!financeTracker.getCurrentUser().getStatus().equals("admin")) {
             System.out.println("У вас нет права доступа!");
             return;
@@ -575,8 +577,12 @@ public class FinanceTrackerApp {
      * Удаляет или блокирует пользователя (доступно только администратору).
      * Запрашивает ID пользователя и действие (удаление или блокировка).
      */
-    static void deleteOrBanUser() {
+    private static void deleteOrBanUser() {
         String id = inputValidator.getStringInput("Введите id пользователя: ");
+        if (financeTracker.getUser(id) == null) {
+            System.out.println("Пользователя с таким id не существует!");
+            return;
+        }
         if (financeTracker.getUser(id).getStatus().equals("admin")) {
             System.out.println("Вы не можете блокировать или удалять аккаунт администратора!");
             return;
@@ -591,10 +597,5 @@ public class FinanceTrackerApp {
             System.out.println("Неверный ввод. Попробуйте снова");
         }
     }
-
-    public static void updateInputValidator() {
-        inputValidator = new InputValidator(new ScannerInputProvider(new Scanner(System.in)));
-    }
-
 
 }

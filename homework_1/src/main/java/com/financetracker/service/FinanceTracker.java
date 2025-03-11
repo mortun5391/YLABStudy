@@ -252,7 +252,9 @@ public class FinanceTracker {
         if (currentUser == null) {
             throw new IllegalStateException("No user is currently logged in");
         }
+        emailToUserMap.remove(currentUser.getEmail());
         currentUser.setEmail(email);
+        emailToUserMap.put(email,currentUser);
     }
 
     /**

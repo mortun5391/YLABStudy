@@ -1,9 +1,6 @@
 
 
-import com.financetracker.model.BudgetRecord;
-import com.financetracker.model.Goal;
 import com.financetracker.model.Transaction;
-import com.financetracker.model.User;
 import com.financetracker.service.FinanceTracker;
 import com.financetracker.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +22,6 @@ class FinanceTrackerTest {
 
     @BeforeEach
     void setUp() {
-        // Мокируем NotificationService
         notificationService = Mockito.mock(NotificationService.class);
         financeTracker = new FinanceTracker(notificationService);
     }
@@ -119,7 +115,7 @@ class FinanceTrackerTest {
         assertTrue(report.contains("Расход за период: 500,00 "));
     }
 
-   @Test
+    @Test
     void testDeleteUser() {
         financeTracker.registerUser("test@example.com", "password123", "Test User", "user");
         financeTracker.loginUser("test@example.com", "password123");
@@ -149,6 +145,7 @@ class FinanceTrackerTest {
             financeTracker.getTargetAmount(financeTracker.getCurrentUser().getId());
         });
     }
+
     @Test
     void testGetProgress_Success() {
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
@@ -279,35 +276,31 @@ class FinanceTrackerTest {
         financeTracker.registerUser("user1@example.com", "password1", "User One", "user");
         financeTracker.registerUser("user2@example.com", "password2", "User Two", "user");
 
-        financeTracker.loginUser("admin@example.ru","admin123");
-        // Перенаправляем вывод в консоль
+        financeTracker.loginUser("admin@example.ru", "admin123");
+
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
         financeTracker.viewUsersList();
 
-        // Проверяем вывод
         String output = outContent.toString();
         assertTrue(output.contains("User One"));
         assertTrue(output.contains("User Two"));
 
-        // Возвращаем стандартный вывод
         System.setOut(System.out);
     }
 
     @Test
     void testViewUsersList_NoCurrentUser() {
-        // Перенаправляем вывод в консоль
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
         financeTracker.viewUsersList();
 
-        // Проверяем, что вывод пустой
         String output = outContent.toString();
         assertTrue(output.isEmpty());
 
-        // Возвращаем стандартный вывод
+
         System.setOut(System.out);
     }
 
@@ -316,18 +309,15 @@ class FinanceTrackerTest {
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
         financeTracker.loginUser("test@example.com", "password123");
 
-        // Перенаправляем вывод в консоль
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
         financeTracker.viewProfile();
 
-        // Проверяем вывод
         String output = outContent.toString();
         assertTrue(output.contains("Test User"));
         assertTrue(output.contains("test@example.com"));
 
-        // Возвращаем стандартный вывод
         System.setOut(System.out);
     }
 
@@ -388,25 +378,20 @@ class FinanceTrackerTest {
 
     @Test
     void testRemoveTransaction_Success() {
-        // Регистрируем и входим под пользователем
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
         financeTracker.loginUser("test@example.com", "password123");
 
-        // Добавляем транзакцию
         financeTracker.addTransaction(100.0, "Salary", LocalDate.now(), "Monthly salary", true);
         Map<String, Transaction> transactions = financeTracker.getTransactions(financeTracker.getCurrentUser().getId());
         String transactionId = transactions.keySet().iterator().next();
 
-        // Удаляем транзакцию
         financeTracker.removeTransaction(transactionId);
 
-        // Проверяем, что транзакция удалена
         assertNull(financeTracker.getTransaction(transactionId));
     }
 
     @Test
     void testRemoveTransaction_NoCurrentUser() {
-        // Не выполняем вход, currentUser == null
         assertThrows(IllegalStateException.class, () -> {
             financeTracker.removeTransaction("someId");
         });
@@ -414,26 +399,21 @@ class FinanceTrackerTest {
 
     @Test
     void testGetTransaction_Success() {
-        // Регистрируем и входим под пользователем
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
         financeTracker.loginUser("test@example.com", "password123");
 
-        // Добавляем транзакцию
         financeTracker.addTransaction(100.0, "Salary", LocalDate.now(), "Monthly salary", true);
         Map<String, Transaction> transactions = financeTracker.getTransactions(financeTracker.getCurrentUser().getId());
         String transactionId = transactions.keySet().iterator().next();
 
-        // Получаем транзакцию
         Transaction transaction = financeTracker.getTransaction(transactionId);
 
-        // Проверяем, что транзакция найдена
         assertNotNull(transaction);
         assertEquals(100.0, transaction.getAmount());
     }
 
     @Test
     void testGetTransaction_NoCurrentUser() {
-        // Не выполняем вход, currentUser == null
         assertThrows(IllegalStateException.class, () -> {
             financeTracker.getTransaction("someId");
         });
@@ -441,46 +421,35 @@ class FinanceTrackerTest {
 
     @Test
     void testGetTransaction_NotFound() {
-        // Регистрируем и входим под пользователем
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
         financeTracker.loginUser("test@example.com", "password123");
 
-        // Пытаемся получить несуществующую транзакцию
         Transaction transaction = financeTracker.getTransaction("nonExistentId");
 
-        // Проверяем, что транзакция не найдена
         assertNull(transaction);
     }
 
     @Test
     void testCheckExpenseLimit_NotExceeded() {
-        // Регистрируем и входим под пользователем
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
         financeTracker.loginUser("test@example.com", "password123");
 
-        // Устанавливаем бюджет
         financeTracker.addBudget(financeTracker.getCurrentUser().getId(), "2023-10", 1000.0);
 
-        // Добавляем расходы
         financeTracker.addTransaction(400.0, "Shopping", LocalDate.now(), "Clothes", false);
 
-        // Проверяем лимит
         financeTracker.checkExpenseLimit(financeTracker.getCurrentUser().getId(), "test@example.com");
 
-        // Убеждаемся, что уведомление не отправлено
         verify(notificationService, never()).sendNotification(anyString(), anyString());
     }
 
     @Test
     void testCheckExpenseLimit_NoBudget() {
-        // Регистрируем и входим под пользователем
         financeTracker.registerUser("test@example.com", "password123", "Test User", "active");
         financeTracker.loginUser("test@example.com", "password123");
 
-        // Проверяем лимит без установленного бюджета
         financeTracker.checkExpenseLimit(financeTracker.getCurrentUser().getId(), "test@example.com");
 
-        // Убеждаемся, что уведомление не отправлено
         verify(notificationService, never()).sendNotification(anyString(), anyString());
     }
 }
