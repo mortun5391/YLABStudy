@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.repository</a> &gt; <span class="el_source">UserRepository.java</span></div><h1>UserRepository.java</h1><pre class="source lang-java linenums">package com.financetracker.repository;
+
+import com.financetracker.model.BudgetRecord;
+import com.financetracker.model.Goal;
+import com.financetracker.model.Transaction;
+import com.financetracker.model.User;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+<span class="fc" id="L13">public class UserRepository {</span>
+
+    /**
+     * Карта для хранения пользователей по их уникальному идентификатору.
+     * Ключ: идентификатор пользователя (String).
+     * Значение: объект User.
+     */
+<span class="fc" id="L20">    private Map&lt;String, User&gt; users = new HashMap&lt;&gt;();</span>
+
+    public void saveUser(User user) {
+<span class="fc" id="L23">        users.put(user.getId(), user);</span>
+<span class="fc" id="L24">    }</span>
+
+    public User findUserById(String id) {
+<span class="fc" id="L27">        return users.get(id);</span>
+    }
+
+    public User findUserByEmail(String email) {
+<span class="fc" id="L31">        return users.values().stream()</span>
+<span class="fc" id="L32">                .filter(user -&gt; user.getEmail().equals(email))</span>
+<span class="fc" id="L33">                .findFirst()</span>
+<span class="fc" id="L34">                .orElse(null);</span>
+    }
+
+    public void deleteUser(String id) {
+<span class="fc" id="L38">        users.remove(id);</span>
+<span class="fc" id="L39">    }</span>
+
+    public List&lt;User&gt; getUsers() {
+<span class="fc" id="L42">        return users.values().stream().toList();</span>
+    }
+
+    public void addTransaction(String userId, Transaction transaction) {
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (users.containsKey(userId)) {</span>
+<span class="fc" id="L47">            users.get(userId).addTransaction(transaction);</span>
+        }
+<span class="fc" id="L49">    }</span>
+
+    public Map&lt;String, Transaction&gt; getTransactions(String userId) {
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (users.containsKey(userId)) {</span>
+<span class="fc" id="L53">            return users.get(userId).getTransactions();</span>
+        }
+<span class="nc" id="L55">        return Collections.emptyMap();</span>
+    }
+
+    public Transaction getTransaction(String userId, String transactionId) {
+<span class="nc" id="L59">        return users.get(userId).getTransaction(transactionId);</span>
+    }
+
+    public void removeTransaction(String userId, String transactionId) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (users.containsKey(userId)) {</span>
+<span class="nc" id="L64">            users.get(userId).removeTransaction(transactionId);</span>
+        }
+<span class="nc" id="L66">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

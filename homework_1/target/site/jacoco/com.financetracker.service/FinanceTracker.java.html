@@ -1,4 +1,4 @@
-package com.financetracker.service;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FinanceTracker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">FinanceTracker.java</span></div><h1>FinanceTracker.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
 
 import com.financetracker.model.BudgetRecord;
 import com.financetracker.model.Goal;
@@ -12,7 +12,7 @@ import java.util.*;
  * Класс FinanceTracker представляет собой систему управления финансами,
  * которая позволяет регистрировать пользователей, управлять их транзакциями,
  * бюджетами и финансовыми целями, а также отправлять уведомления.
- * <p>
+ * &lt;p&gt;
  * Основные функции:
  * - Регистрация и аутентификация пользователей.
  * - Управление транзакциями, бюджетами и целями.
@@ -35,10 +35,10 @@ public class FinanceTracker {
     private BudgetService budgetService;
     private GoalService goalService;
 
-    public enum LoginResult {
-        SUCCESS,
-        INVALID_CREDENTIALS,
-        USER_BANNED
+<span class="fc" id="L38">    public enum LoginResult {</span>
+<span class="fc" id="L39">        SUCCESS,</span>
+<span class="fc" id="L40">        INVALID_CREDENTIALS,</span>
+<span class="fc" id="L41">        USER_BANNED</span>
     }
 
 
@@ -51,14 +51,14 @@ public class FinanceTracker {
      */
 
     public FinanceTracker(UserService userService, TransactionService transactionService, BudgetService budgetService,
-                          GoalService goalService ,NotificationService notificationService) {
-        this.userService = userService;
-        this.transactionService = transactionService;
-        this.budgetService = budgetService;
-        this.goalService = goalService;
-        this.notificationService = notificationService;
-        userService.registerUser("admin@example.com","admin123", "Admin", "admin");
-    }
+<span class="fc" id="L54">                          GoalService goalService ,NotificationService notificationService) {</span>
+<span class="fc" id="L55">        this.userService = userService;</span>
+<span class="fc" id="L56">        this.transactionService = transactionService;</span>
+<span class="fc" id="L57">        this.budgetService = budgetService;</span>
+<span class="fc" id="L58">        this.goalService = goalService;</span>
+<span class="fc" id="L59">        this.notificationService = notificationService;</span>
+<span class="fc" id="L60">        userService.registerUser(&quot;admin@example.com&quot;,&quot;admin123&quot;, &quot;Admin&quot;, &quot;admin&quot;);</span>
+<span class="fc" id="L61">    }</span>
 
     /**
      * Регистрирует нового пользователя в системе.
@@ -71,7 +71,7 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если любой из параметров равен null или пустой строке.
      */
     public boolean registerUser(String email, String password, String name, String role) {
-        return userService.registerUser(email, password, name, role);
+<span class="fc" id="L74">        return userService.registerUser(email, password, name, role);</span>
     }
 
     /**
@@ -84,13 +84,13 @@ public class FinanceTracker {
      */
     public LoginResult loginUser(String email, String password) {
         try {
-            if (userService.loginUser(email, password)) {
-                currentUser = userService.getUserByEmail(email);
-                return LoginResult.SUCCESS;
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            if (userService.loginUser(email, password)) {</span>
+<span class="fc" id="L88">                currentUser = userService.getUserByEmail(email);</span>
+<span class="fc" id="L89">                return LoginResult.SUCCESS;</span>
             }
-            return LoginResult.INVALID_CREDENTIALS;
-        } catch (IllegalStateException e) {
-            return LoginResult.USER_BANNED;
+<span class="fc" id="L91">            return LoginResult.INVALID_CREDENTIALS;</span>
+<span class="fc" id="L92">        } catch (IllegalStateException e) {</span>
+<span class="fc" id="L93">            return LoginResult.USER_BANNED;</span>
         }
     }
 
@@ -99,8 +99,8 @@ public class FinanceTracker {
      * Устанавливает значение currentUser в null.
      */
     public void logoutUser() {
-        currentUser = null;
-    }
+<span class="fc" id="L102">        currentUser = null;</span>
+<span class="fc" id="L103">    }</span>
 
 
     /**
@@ -111,30 +111,30 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если пользователь с указанным id не найден.
      */
     public void deleteUser(String id) {
-        userService.deleteUser(id);
-        if (currentUser != null && currentUser.getId().equals(id)) {
-            logoutUser();
+<span class="fc" id="L114">        userService.deleteUser(id);</span>
+<span class="pc bpc" id="L115" title="2 of 4 branches missed.">        if (currentUser != null &amp;&amp; currentUser.getId().equals(id)) {</span>
+<span class="fc" id="L116">            logoutUser();</span>
         }
-    }
+<span class="fc" id="L118">    }</span>
 
     public void banUser(String id) {
-        userService.banUser(id);
-    }
+<span class="fc" id="L121">        userService.banUser(id);</span>
+<span class="fc" id="L122">    }</span>
 
     public String getId() {
-        return currentUser.getId();
+<span class="fc" id="L125">        return currentUser.getId();</span>
     }
 
     public boolean hasAccess(String id) {
-        return userService.hasAccess(id);
+<span class="fc" id="L129">        return userService.hasAccess(id);</span>
     }
 
     public boolean isPasswordEqual(String password) {
-        return userService.isPasswordEqual(currentUser.getId(), password);
+<span class="fc" id="L133">        return userService.isPasswordEqual(currentUser.getId(), password);</span>
     }
 
     public boolean isUserExist(String id) {
-        return userService.isUserExist(id);
+<span class="fc" id="L137">        return userService.isUserExist(id);</span>
     }
 
     /**
@@ -151,22 +151,22 @@ public class FinanceTracker {
      */
     public void addTransaction(double amount, String category, LocalDate date,
                                String description, boolean isIncome) {
-        if (currentUser == null) {
-            throw new IllegalStateException("No user is currently logged in");
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L155">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
         }
-        String id = getId();
+<span class="fc" id="L157">        String id = getId();</span>
 
-        transactionService.addTransaction(id, amount ,category, date, description, isIncome);
-        if (budgetService.isBudgetSet(id)) {
-            if (!isIncome && date.toString().substring(0,7).equals(budgetService.getMonth(id))) {
-                budgetService.addMonthlyExpress(id, amount);
+<span class="fc" id="L159">        transactionService.addTransaction(id, amount ,category, date, description, isIncome);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (budgetService.isBudgetSet(id)) {</span>
+<span class="pc bpc" id="L161" title="2 of 4 branches missed.">            if (!isIncome &amp;&amp; date.toString().substring(0,7).equals(budgetService.getMonth(id))) {</span>
+<span class="fc" id="L162">                budgetService.addMonthlyExpress(id, amount);</span>
             }
         }
-        if (goalService.isGoalSet(id) && isIncome) {
-            goalService.addAmount(id, amount);
+<span class="pc bpc" id="L165" title="1 of 4 branches missed.">        if (goalService.isGoalSet(id) &amp;&amp; isIncome) {</span>
+<span class="nc" id="L166">            goalService.addAmount(id, amount);</span>
         }
 
-    }
+<span class="fc" id="L169">    }</span>
 
     /**
      * Удаляет транзакцию у текущего пользователя по её идентификатору.
@@ -175,42 +175,42 @@ public class FinanceTracker {
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public boolean removeTransaction(String id) {
-        if (currentUser == null) {
-            throw new IllegalStateException("No user is currently logged in");
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L179">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
         }
-       return transactionService.removeTransaction(currentUser.getId(), id);
+<span class="fc" id="L181">       return transactionService.removeTransaction(currentUser.getId(), id);</span>
     }
 
     public boolean isTransactionThere(String id) {
-        return transactionService.isTransactionThere(currentUser.getId(), id);
+<span class="fc" id="L185">        return transactionService.isTransactionThere(currentUser.getId(), id);</span>
     }
 
     public void setTransactionAmount(String id, double amount) {
-        transactionService.setTransactionAmount(currentUser.getId(), id, amount);
-    }
+<span class="fc" id="L189">        transactionService.setTransactionAmount(currentUser.getId(), id, amount);</span>
+<span class="fc" id="L190">    }</span>
 
     public void setTransactionCategory(String id, String category) {
-        transactionService.setTransactionCategory(currentUser.getId(), id, category);
-    }
+<span class="fc" id="L193">        transactionService.setTransactionCategory(currentUser.getId(), id, category);</span>
+<span class="fc" id="L194">    }</span>
 
     public void setTransactionDescription(String id, String description) {
-        transactionService.setTransactionDescription(currentUser.getId(), id, description);
-    }
+<span class="fc" id="L197">        transactionService.setTransactionDescription(currentUser.getId(), id, description);</span>
+<span class="fc" id="L198">    }</span>
 
     public String viewTransactionsNoFilter(String id) {
-        return transactionService.viewTransactionNoFilter(currentUser.getId());
+<span class="fc" id="L201">        return transactionService.viewTransactionNoFilter(currentUser.getId());</span>
     }
 
     public String viewTransactionsDateFilter(String id, LocalDate dateFilter) {
-        return transactionService.viewTransactionsDateFilter(id, dateFilter);
+<span class="fc" id="L205">        return transactionService.viewTransactionsDateFilter(id, dateFilter);</span>
     }
 
     public String viewTransactionsCategoryFilter(String id, String categoryFilter) {
-        return transactionService.viewTransactionsCategoryFilter(id, categoryFilter);
+<span class="fc" id="L209">        return transactionService.viewTransactionsCategoryFilter(id, categoryFilter);</span>
     }
 
     public String viewTransactionsIsIncomeFilter(String id, boolean isIncomeFilter) {
-        return transactionService.viewTransactionsIsIncomeFilter(id, isIncomeFilter);
+<span class="fc" id="L213">        return transactionService.viewTransactionsIsIncomeFilter(id, isIncomeFilter);</span>
     }
 
     /**
@@ -221,11 +221,11 @@ public class FinanceTracker {
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public void changeEmail(String email) {
-        if (currentUser == null) {
-            throw new IllegalStateException("No user is currently logged in");
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L225">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
         }
-        userService.changeEmail(currentUser.getId(),email);
-    }
+<span class="fc" id="L227">        userService.changeEmail(currentUser.getId(),email);</span>
+<span class="fc" id="L228">    }</span>
 
     /**
      * Изменяет пароль текущего пользователя.
@@ -235,11 +235,11 @@ public class FinanceTracker {
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public void changePassword(String password) {
-        if (currentUser == null) {
-            throw new IllegalStateException("No user is currently logged in");
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L239">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
         }
-        userService.changePassword(currentUser.getId(), password);
-    }
+<span class="fc" id="L241">        userService.changePassword(currentUser.getId(), password);</span>
+<span class="fc" id="L242">    }</span>
 
     /**
      * Изменяет имя текущего пользователя.
@@ -249,11 +249,11 @@ public class FinanceTracker {
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public void changeName(String name) {
-        if (currentUser == null) {
-            throw new IllegalStateException("No user is currently logged in");
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L253">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
         }
-        userService.changeName(currentUser.getId(), name);
-    }
+<span class="fc" id="L255">        userService.changeName(currentUser.getId(), name);</span>
+<span class="fc" id="L256">    }</span>
 
     /**
      * Отображает профиль текущего пользователя.
@@ -262,10 +262,10 @@ public class FinanceTracker {
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public String viewProfile() {
-        if (currentUser == null) {
-            throw new IllegalStateException("No user is currently logged in");
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L266">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
         }
-        return userService.viewProfile(currentUser.getId());
+<span class="fc" id="L268">        return userService.viewProfile(currentUser.getId());</span>
     }
 
     /**
@@ -274,9 +274,9 @@ public class FinanceTracker {
      * Метод доступен только для аутентифицированных пользователей.
      */
     public void viewUsersList() {
-        if (currentUser == null) return;
-        userService.viewUsersList(currentUser.getId());
-    }
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">        if (currentUser == null) return;</span>
+<span class="fc" id="L278">        userService.viewUsersList(currentUser.getId());</span>
+<span class="fc" id="L279">    }</span>
 
 
     /**
@@ -287,7 +287,7 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если бюджет для пользователя не установлен.
      */
     public String getMonth(String id) {
-        return budgetService.getMonth(id);
+<span class="fc" id="L290">        return budgetService.getMonth(id);</span>
     }
 
     /**
@@ -299,10 +299,10 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если месяц или сумма бюджета некорректны.
      */
     public void addBudget(String month, double budget) {
-        budgetService.addBudget(currentUser.getId(), month, budget);
-        budgetService.addMonthlyExpress(currentUser.getId(),
-                transactionService.calculateMonthlyExpress(currentUser.getId(), month));
-    }
+<span class="fc" id="L302">        budgetService.addBudget(currentUser.getId(), month, budget);</span>
+<span class="fc" id="L303">        budgetService.addMonthlyExpress(currentUser.getId(),</span>
+<span class="fc" id="L304">                transactionService.calculateMonthlyExpress(currentUser.getId(), month));</span>
+<span class="fc" id="L305">    }</span>
 
     /**
      * Проверяет, установлен ли бюджет для пользователя.
@@ -311,7 +311,7 @@ public class FinanceTracker {
      * @return true, если бюджет установлен; false, если нет.
      */
     public boolean isBudgetSet(String id) {
-        return budgetService.isBudgetSet(id);
+<span class="fc" id="L314">        return budgetService.isBudgetSet(id);</span>
     }
 
     /**
@@ -322,7 +322,7 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если бюджет для пользователя не установлен.
      */
     public double getMonthlyBudget(String id) {
-        return budgetService.getMonthlyBudget(id);
+<span class="fc" id="L325">        return budgetService.getMonthlyBudget(id);</span>
     }
 
     /**
@@ -333,7 +333,7 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если бюджет для пользователя не установлен.
      */
     public double getMonthlyExpress(String id) {
-        return budgetService.getMonthlyExpress(id);
+<span class="fc" id="L336">        return budgetService.getMonthlyExpress(id);</span>
     }
 
     /**
@@ -344,8 +344,8 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если бюджет для пользователя не установлен.
      */
     public void addMonthlyExpress(String id, double express) {
-        budgetService.addMonthlyExpress(id, express);
-    }
+<span class="fc" id="L347">        budgetService.addMonthlyExpress(id, express);</span>
+<span class="fc" id="L348">    }</span>
 
     /**
      * Возвращает оставшуюся сумму бюджета пользователя.
@@ -355,11 +355,11 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если бюджет для пользователя не установлен.
      */
     public double getRemaining(String id) {
-        return budgetService.getRemaining(id);
+<span class="fc" id="L358">        return budgetService.getRemaining(id);</span>
     }
 
     public String viewBudget() {
-        return budgetService.viewBudget(currentUser.getId());
+<span class="fc" id="L362">        return budgetService.viewBudget(currentUser.getId());</span>
     }
     /**
      * Устанавливает финансовую цель для пользователя.
@@ -369,8 +369,8 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если название цели или целевая сумма некорректны.
      */
     public void setGoal(String name, double target) {
-        goalService.setGoal(currentUser.getId(), name, target);
-    }
+<span class="fc" id="L372">        goalService.setGoal(currentUser.getId(), name, target);</span>
+<span class="fc" id="L373">    }</span>
 
     /**
      * Добавляет сумму к текущему прогрессу финансовой цели пользователя.
@@ -379,8 +379,8 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если цель для пользователя не установлена.
      */
     public void addAmount(double amount) {
-        goalService.addAmount(currentUser.getId(), amount);
-    }
+<span class="fc" id="L382">        goalService.addAmount(currentUser.getId(), amount);</span>
+<span class="fc" id="L383">    }</span>
 
     /**
      * Проверяет, установлена ли финансовая цель для пользователя.
@@ -389,7 +389,7 @@ public class FinanceTracker {
      * @return true, если цель установлена; false, если нет.
      */
     public boolean isGoalSet(String id) {
-        return goalService.isGoalSet(id);
+<span class="fc" id="L392">        return goalService.isGoalSet(id);</span>
     }
 
     /**
@@ -400,7 +400,7 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если цель для пользователя не установлена.
      */
     public int getProgress(String id) {
-        return goalService.getProgress(id);
+<span class="fc" id="L403">        return goalService.getProgress(id);</span>
     }
 
     /**
@@ -411,7 +411,7 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если цель для пользователя не установлена.
      */
     public double getTargetAmount(String id) {
-        return goalService.getTargetAmount(id);
+<span class="fc" id="L414">        return goalService.getTargetAmount(id);</span>
     }
 
     /**
@@ -422,11 +422,11 @@ public class FinanceTracker {
      * @throws IllegalArgumentException если цель для пользователя не установлена.
      */
     public String getGoalName(String id) {
-        return goalService.getGoalName(id);
+<span class="fc" id="L425">        return goalService.getGoalName(id);</span>
     }
 
     public String viewGoal() {
-        return goalService.viewGoal(currentUser.getId());
+<span class="fc" id="L429">        return goalService.viewGoal(currentUser.getId());</span>
     }
 
     /**
@@ -436,7 +436,7 @@ public class FinanceTracker {
      * @return текущий баланс пользователя.
      */
     public double getBalance() {
-        return transactionService.getBalance(currentUser.getId());
+<span class="fc" id="L439">        return transactionService.getBalance(currentUser.getId());</span>
     }
 
     /**
@@ -447,7 +447,7 @@ public class FinanceTracker {
      * @return сумма доходов за период.
      */
     public double getIncomeOfPeriod(LocalDate start, LocalDate end) {
-        return transactionService.getIncomeOfPeriod(currentUser.getId(),start,end);
+<span class="fc" id="L450">        return transactionService.getIncomeOfPeriod(currentUser.getId(),start,end);</span>
     }
 
     /**
@@ -458,7 +458,7 @@ public class FinanceTracker {
      * @return сумма расходов за период.
      */
     public double getExpensesOfPeriod(LocalDate start, LocalDate end) {
-        return transactionService.getExpensesOfPeriod(currentUser.getId(), start, end);
+<span class="fc" id="L461">        return transactionService.getExpensesOfPeriod(currentUser.getId(), start, end);</span>
     }
 
     /**
@@ -466,10 +466,10 @@ public class FinanceTracker {
      *
      * @param start начальная дата периода.
      * @param end конечная дата периода.
-     * @return Map<String, Double>, где ключ — категория, а значение — сумма расходов по этой категории.
+     * @return Map&lt;String, Double&gt;, где ключ — категория, а значение — сумма расходов по этой категории.
      */
-    public Map<String, Double> getExpensesByCategory(LocalDate start, LocalDate end) {
-        return transactionService.getExpensesByCategory(currentUser.getId(), start, end);
+    public Map&lt;String, Double&gt; getExpensesByCategory(LocalDate start, LocalDate end) {
+<span class="fc" id="L472">        return transactionService.getExpensesByCategory(currentUser.getId(), start, end);</span>
     }
 
 
@@ -482,7 +482,7 @@ public class FinanceTracker {
      * @return строка, содержащая финансовый отчёт.
      */
     public String generateReport(LocalDate start, LocalDate end) {
-        return transactionService.generateReport(currentUser.getId(), start, end);
+<span class="fc" id="L485">        return transactionService.generateReport(currentUser.getId(), start, end);</span>
     }
 
     /**
@@ -493,15 +493,16 @@ public class FinanceTracker {
      * @param recipient получатель уведомления (например, email).
      */
     public void checkExpenseLimit(String id, String recipient) {
-        if (!budgetService.isBudgetSet(id)) {
-            return;
+<span class="nc bnc" id="L496" title="All 2 branches missed.">        if (!budgetService.isBudgetSet(id)) {</span>
+<span class="nc" id="L497">            return;</span>
         }
-        double expenseLimit = budgetService.getMonthlyBudget(id);
-        double totalExpenses = budgetService.getMonthlyExpress(id);
-        if (totalExpenses > expenseLimit) {
-            String message = String.format("Превышен лимит расходов! Текущие расходы: %.2f, Лимит: %.2f",
-                    totalExpenses, expenseLimit);
-            notificationService.sendNotification(recipient, message);
+<span class="nc" id="L499">        double expenseLimit = budgetService.getMonthlyBudget(id);</span>
+<span class="nc" id="L500">        double totalExpenses = budgetService.getMonthlyExpress(id);</span>
+<span class="nc bnc" id="L501" title="All 2 branches missed.">        if (totalExpenses &gt; expenseLimit) {</span>
+<span class="nc" id="L502">            String message = String.format(&quot;Превышен лимит расходов! Текущие расходы: %.2f, Лимит: %.2f&quot;,</span>
+<span class="nc" id="L503">                    totalExpenses, expenseLimit);</span>
+<span class="nc" id="L504">            notificationService.sendNotification(recipient, message);</span>
         }
-    }
+<span class="nc" id="L506">    }</span>
 }
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

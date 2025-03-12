@@ -10,7 +10,8 @@ public class User {
     private String email;
     private String password;
     private String name;
-    private String status; // admin or user
+    private String role; // admin or user
+    private String status; // active or banned
     private HashMap<String,Transaction> transactions;
 
     /**
@@ -20,14 +21,15 @@ public class User {
      * @param email Email пользователя.
      * @param password Пароль пользователя
      * @param name  Имя пользователя.
-     * @param status Статус пользователя (admin/user/banned)
+     * @param role Статус пользователя (admin/user/banned)
      */
-    public User(String email, String password, String name, String status) {
+    public User(String email, String password, String name, String role) {
         this.id = UUID.randomUUID().toString().substring(0,8);
         this.email = email;
         this.password = password;
         this.name = name;
-        this.status = status;
+        this.role = role;
+        this.status = "active";
         this.transactions = new HashMap<>();
     }
 
@@ -142,14 +144,11 @@ public class User {
     /**
      * Удаляет транзакцию из списка транзакций пользователя.
      *
-     * @param transaction объект Transaction для удаления. Не может быть null.
+     * @param id объект Transaction для удаления. Не может быть null.
      * @throws IllegalArgumentException если transaction равен null.
      */
-    public void removeTransaction(Transaction transaction) {
-        if (transaction == null) {
-            throw new IllegalArgumentException("Transaction cannot be null");
-        }
-        transactions.remove(transaction.getId());
+    public void removeTransaction(String id) {
+        transactions.remove(id);
     }
 
     /**
@@ -157,6 +156,10 @@ public class User {
      *
      * @return строка, представляющая статус пользователя.
      */
+    public String getRole() {
+        return role;
+    }
+
     public String getStatus() {
         return status;
     }

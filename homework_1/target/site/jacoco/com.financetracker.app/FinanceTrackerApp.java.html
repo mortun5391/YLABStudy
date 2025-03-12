@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FinanceTrackerApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.app</a> &gt; <span class="el_source">FinanceTrackerApp.java</span></div><h1>FinanceTrackerApp.java</h1><pre class="source lang-java linenums">package com.financetracker.app;
+
+import com.financetracker.repository.BudgetRepository;
+import com.financetracker.repository.GoalRepository;
+import com.financetracker.repository.UserRepository;
+import com.financetracker.service.*;
+import com.financetracker.utils.InputValidator;
+import com.financetracker.utils.ScannerInputProvider;
+
+import java.time.LocalDate;
+import java.util.*;
+
+/**
+ * Класс FinanceTrackerApp представляет собой консольное приложение для управления финансами.
+ * Позволяет пользователям регистрироваться, входить в систему, управлять транзакциями,
+ * бюджетами, финансовыми целями, а также просматривать статистику и аналитику.
+ */
+<span class="nc" id="L18">public class FinanceTrackerApp {</span>
+    private static FinanceTracker financeTracker;
+<span class="fc" id="L20">    public static InputValidator inputValidator = new InputValidator( new ScannerInputProvider(new Scanner(System.in)));</span>
+
+
+
+    /**
+     * Точка входа в приложение.
+     *
+     * @param args Аргументы командной строки (не используются).
+     */
+    public static void main(String[] args) {
+<span class="fc" id="L30">        UserRepository userRepository = new UserRepository();</span>
+
+<span class="fc" id="L32">        NotificationService notificationService = new ConsoleNotificationService();</span>
+<span class="fc" id="L33">        UserService userService = new UserService(userRepository);</span>
+<span class="fc" id="L34">        TransactionService transactionService = new TransactionService(userRepository);</span>
+<span class="fc" id="L35">        BudgetService budgetService = new BudgetService(new BudgetRepository());</span>
+<span class="fc" id="L36">        GoalService goalService = new GoalService(new GoalRepository());</span>
+
+<span class="fc" id="L38">        financeTracker = new FinanceTracker(userService, transactionService,</span>
+                budgetService, goalService, notificationService);
+        while (true) {
+<span class="fc" id="L41">            System.out.println(&quot;1. Регистрация&quot;);</span>
+<span class="fc" id="L42">            System.out.println(&quot;2. Вход&quot;);</span>
+<span class="fc" id="L43">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L44">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L47">                    registerUser();</span>
+<span class="fc" id="L48">                    break;</span>
+                case 2:
+<span class="fc" id="L50">                    loginUser();</span>
+<span class="fc" id="L51">                    break;</span>
+                case 0:
+<span class="fc" id="L53">                    return;</span>
+                default:
+<span class="nc" id="L55">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L57">        }</span>
+    }
+
+    /**
+     * Регистрирует нового пользователя в системе.
+     * Запрашивает email, пароль, имя и создаёт нового пользователя.
+     */
+    private static void registerUser() {
+<span class="fc" id="L65">        String email = inputValidator.getStringInput(&quot;Введите email: &quot;);</span>
+        String password;
+        while (true) {
+<span class="fc" id="L68">            password = inputValidator.getStringInput(&quot;Введите пароль: &quot;);</span>
+<span class="fc" id="L69">            String confirm = inputValidator.getStringInput(&quot;Подтвердите пароль: &quot;);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">            if (password.equals(confirm)) {</span>
+<span class="fc" id="L71">                break;</span>
+            }
+<span class="nc" id="L73">            System.out.println(&quot;Пароли не совпадают! Попробуйте еще раз&quot;);</span>
+<span class="nc" id="L74">        }</span>
+<span class="fc" id="L75">        String name = inputValidator.getStringInput(&quot;Введите имя: &quot;);</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (financeTracker.registerUser(email, password, name, &quot;user&quot;)) {</span>
+<span class="fc" id="L77">            System.out.println(&quot;Регистрация прошла успешно&quot;);</span>
+        }
+        else {
+<span class="nc" id="L80">            System.out.println(&quot;Пользователь с таким email уже существует&quot;);</span>
+        }
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Выполняет вход пользователя в систему.
+     * Запрашивает email и пароль, проверяет их корректность.
+     */
+    private static void loginUser() {
+<span class="fc" id="L89">        String email = inputValidator.getStringInput(&quot;Введите email: &quot;);</span>
+<span class="fc" id="L90">        String password = inputValidator.getStringInput(&quot;Введите пароль: &quot;);</span>
+<span class="fc" id="L91">        FinanceTracker.LoginResult result = financeTracker.loginUser(email, password);</span>
+
+<span class="pc bpc" id="L93" title="3 of 4 branches missed.">        switch (result) {</span>
+            case SUCCESS:
+<span class="fc" id="L95">                System.out.println(&quot;Вход выполнен успешно&quot;);</span>
+<span class="fc" id="L96">                userMenu();</span>
+<span class="fc" id="L97">                break;</span>
+            case INVALID_CREDENTIALS:
+<span class="nc" id="L99">                System.out.println(&quot;Неверный email или пароль&quot;);</span>
+<span class="nc" id="L100">                break;</span>
+            case USER_BANNED:
+<span class="nc" id="L102">                System.out.println(&quot;Ваш аккаунт заблокирован!&quot;);</span>
+                break;
+        }
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Отображает меню пользователя после успешного входа в систему.
+     * Позволяет управлять транзакциями, бюджетом, целями, просматривать статистику и профиль.
+     */
+    private static void userMenu() {
+        while (true) {
+
+<span class="fc" id="L114">            System.out.println(&quot;1. Управление транзакциями&quot;);</span>
+<span class="fc" id="L115">            System.out.println(&quot;2. Управление бюджетом&quot;);</span>
+<span class="fc" id="L116">            System.out.println(&quot;3. Управление целями&quot;);</span>
+<span class="fc" id="L117">            System.out.println(&quot;4. Статистика и аналитика&quot;);</span>
+<span class="fc" id="L118">            System.out.println(&quot;5. Просмотреть профиль&quot;);</span>
+<span class="fc" id="L119">            System.out.println(&quot;6. Просмотреть список пользователей&quot;);</span>
+<span class="fc" id="L120">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L121">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+
+<span class="pc bpc" id="L123" title="1 of 8 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L125">                    manageTransactions();</span>
+<span class="fc" id="L126">                    break;</span>
+                case 2:
+<span class="fc" id="L128">                    manageBudget();</span>
+<span class="fc" id="L129">                    break;</span>
+                case 3:
+<span class="fc" id="L131">                    manageGoals();</span>
+<span class="fc" id="L132">                    break;</span>
+                case 4:
+<span class="fc" id="L134">                    manageStatistic();</span>
+<span class="fc" id="L135">                    break;</span>
+                case 5:
+<span class="fc" id="L137">                    viewProfile();</span>
+<span class="fc" id="L138">                    return;</span>
+                case 6:
+<span class="fc" id="L140">                    viewUsersList();</span>
+<span class="fc" id="L141">                    break;</span>
+                case 0:
+<span class="fc" id="L143">                    financeTracker.logoutUser();</span>
+<span class="fc" id="L144">                    return;</span>
+                default:
+<span class="nc" id="L146">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L148">        }</span>
+    }
+
+    /**
+     * Управление транзакциями пользователя.
+     * Позволяет добавлять, удалять, редактировать и просматривать транзакции.
+     */
+    private static void manageTransactions() {
+        while (true) {
+<span class="fc" id="L157">            System.out.println(&quot;1. Добавить транзакцию&quot;);</span>
+<span class="fc" id="L158">            System.out.println(&quot;2. Удалить транзакцию&quot;);</span>
+<span class="fc" id="L159">            System.out.println(&quot;3. Редактировать транзакцию&quot;);</span>
+<span class="fc" id="L160">            System.out.println(&quot;4. Просмотреть транзакции&quot;);</span>
+<span class="fc" id="L161">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L162">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L163" title="3 of 6 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L165">                    addTransaction();</span>
+<span class="fc" id="L166">                    break;</span>
+                case 2:
+<span class="nc" id="L168">                    removeTransaction();</span>
+<span class="nc" id="L169">                    break;</span>
+                case 3:
+<span class="nc" id="L171">                    editTransaction();</span>
+<span class="nc" id="L172">                    break;</span>
+                case 4:
+<span class="fc" id="L174">                    viewTransactions(financeTracker.getId()); // ??</span>
+<span class="fc" id="L175">                    break;</span>
+                case 0:
+<span class="fc" id="L177">                    return;</span>
+            }
+
+<span class="fc" id="L180">        }</span>
+    }
+
+    /**
+     * Добавляет новую транзакцию для текущего пользователя.
+     * Запрашивает ID, сумму, категорию, дату, описание и тип транзакции (доход/расход).
+     */
+    private static void addTransaction() {
+<span class="fc" id="L188">        double amount = inputValidator.getDoubleInput(&quot;Введите сумму: &quot;);</span>
+<span class="fc" id="L189">        String category = inputValidator.getStringInput(&quot;Введите категорию: &quot;);</span>
+<span class="fc" id="L190">        LocalDate date = inputValidator.getDateInput(&quot;Введите дату (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L191">        String description = inputValidator.getStringInput(&quot;Введите описание: &quot;);</span>
+<span class="fc" id="L192">        boolean isIncome = inputValidator.getBooleanInput(&quot;Это доход? (true/false): &quot;);</span>
+
+<span class="fc" id="L194">        financeTracker.addTransaction(amount, category, date, description, isIncome);</span>
+<span class="fc" id="L195">        System.out.println(&quot;Транзакция добавлена&quot;);</span>
+<span class="fc" id="L196">    }</span>
+
+    /**
+     * Удаляет транзакцию по её ID.
+     * Запрашивает ID транзакции для удаления.
+     */
+    private static void removeTransaction() {
+<span class="nc" id="L203">        String id = inputValidator.getStringInput(&quot;Введите ID транзакции для удаления: &quot;);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (financeTracker.removeTransaction(id)) {</span>
+<span class="nc" id="L205">            System.out.println(&quot;Транзакция удалена&quot;);</span>
+        }
+        else {
+<span class="nc" id="L208">            System.out.println(&quot;Транзакция не найдена&quot;);</span>
+        }
+<span class="nc" id="L210">    }</span>
+
+    /**
+     * Редактирует существующую транзакцию.
+     * Позволяет изменить сумму, категорию или описание транзакции.
+     */
+    private static void editTransaction() {
+<span class="nc" id="L217">        String id = inputValidator.getStringInput(&quot;Введите ID транзакции для редактирования: &quot;);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (financeTracker.isTransactionThere(id)) {</span>
+<span class="nc" id="L219">            System.out.println(&quot;Транзакция не найдена&quot;);</span>
+<span class="nc" id="L220">            return;</span>
+        }
+        while (true) {
+<span class="nc" id="L223">            System.out.println(&quot;1. Изменить сумму&quot;);</span>
+<span class="nc" id="L224">            System.out.println(&quot;2. Изменить категорию&quot;);</span>
+<span class="nc" id="L225">            System.out.println(&quot;3. Изменить описание&quot;);</span>
+<span class="nc" id="L226">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="nc" id="L227">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="nc bnc" id="L228" title="All 5 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="nc" id="L230">                    double newAmount = inputValidator.getDoubleInput(&quot;Введите новую сумму: &quot;);;</span>
+<span class="nc" id="L231">                    financeTracker.setTransactionAmount(id, newAmount);</span>
+<span class="nc" id="L232">                    break;</span>
+                case 2:
+<span class="nc" id="L234">                    String newCategory = inputValidator.getStringInput(&quot;Введите новую категорию: &quot;);</span>
+<span class="nc" id="L235">                    financeTracker.setTransactionCategory(id, newCategory);</span>
+<span class="nc" id="L236">                    break;</span>
+                case 3:
+<span class="nc" id="L238">                    String newDescription = inputValidator.getStringInput(&quot;Введите новое описание: &quot;);</span>
+<span class="nc" id="L239">                    financeTracker.setTransactionDescription(id, newDescription);</span>
+<span class="nc" id="L240">                    break;</span>
+                case 0:
+<span class="nc" id="L242">                    return;</span>
+                default:
+<span class="nc" id="L244">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+
+<span class="nc" id="L247">        }</span>
+    }
+
+    /**
+     * Просматривает транзакции пользователя с возможностью фильтрации.
+     *
+     */
+    private static void viewTransactions(String id) {
+        while (true) {
+<span class="fc" id="L256">            System.out.println(&quot;Выберите тип фильтра: &quot;);</span>
+<span class="fc" id="L257">            System.out.println(&quot;1. Без фильтра&quot;);</span>
+<span class="fc" id="L258">            System.out.println(&quot;2. По дате&quot;);</span>
+<span class="fc" id="L259">            System.out.println(&quot;3. По категории&quot;);</span>
+<span class="fc" id="L260">            System.out.println(&quot;4. По доходу (доход/расход)&quot;);</span>
+<span class="fc" id="L261">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L262">            int choice = inputValidator.getIntInput(&quot;&quot;);</span>
+<span class="pc bpc" id="L263" title="1 of 6 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L265">                    System.out.println(financeTracker.viewTransactionsNoFilter(id));</span>
+<span class="fc" id="L266">                    break;</span>
+                case 2:
+<span class="fc" id="L268">                    LocalDate dateFilter = inputValidator.getDateInput(&quot;Введите дату для фильтрации(гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L269">                    System.out.println(financeTracker.viewTransactionsDateFilter(id, dateFilter));</span>
+<span class="fc" id="L270">                    break;</span>
+                case 3:
+<span class="fc" id="L272">                    String categoryFilter = inputValidator.getStringInput(&quot;Введите категорию для фильтрации: &quot;);</span>
+<span class="fc" id="L273">                    System.out.println(financeTracker.viewTransactionsCategoryFilter(id, categoryFilter));</span>
+<span class="fc" id="L274">                    break;</span>
+                case 4:
+<span class="fc" id="L276">                    boolean isIncomeFilter = inputValidator.getBooleanInput(&quot;Доход/расход? (введите true/false): &quot;);</span>
+<span class="fc" id="L277">                    System.out.println(financeTracker.viewTransactionsIsIncomeFilter(id, isIncomeFilter));</span>
+<span class="fc" id="L278">                    break;</span>
+                case 0:
+<span class="fc" id="L280">                    return;</span>
+                default:
+<span class="nc" id="L282">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L284">        }</span>
+    }
+
+    /**
+     * Отображает профиль текущего пользователя и предоставляет меню для его изменения или удаления.
+     */
+    private static void viewProfile() {
+        while (true) {
+<span class="fc" id="L292">            System.out.println(financeTracker.viewProfile());</span>
+<span class="fc" id="L293">            System.out.println(&quot;1. Изменить профиль&quot; +</span>
+                             &quot;\n2. Удалить профиль&quot; +
+                             &quot;\n0. Выход&quot;);
+<span class="fc" id="L296">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L297" title="1 of 4 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L299">                    editProfile();</span>
+<span class="fc" id="L300">                    break;</span>
+                case 2:
+<span class="fc" id="L302">                    deleteProfile();</span>
+<span class="fc" id="L303">                    return;</span>
+                case 0:
+<span class="fc" id="L305">                    userMenu();</span>
+<span class="fc" id="L306">                    return;</span>
+                default:
+<span class="nc" id="L308">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L310">        }</span>
+    }
+
+
+    // PROFILE SETTINGS
+    /**
+     * Меню для редактирования профиля пользователя.
+     * Позволяет изменить email, пароль или имя.
+     */
+    private static void editProfile() {
+        while (true) {
+<span class="fc" id="L321">            System.out.println(&quot;1. Изменить email&quot;);</span>
+<span class="fc" id="L322">            System.out.println(&quot;2. Изменить пароль&quot;);</span>
+<span class="fc" id="L323">            System.out.println(&quot;3. Изменить имя&quot;);</span>
+<span class="fc" id="L324">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L325">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L326" title="1 of 5 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L328">                    changeEmail();</span>
+<span class="fc" id="L329">                    break;</span>
+                case 2:
+<span class="fc" id="L331">                    changePassword();</span>
+<span class="fc" id="L332">                    break;</span>
+                case 3:
+<span class="fc" id="L334">                    changeName();</span>
+<span class="fc" id="L335">                    break;</span>
+                case 0:
+<span class="fc" id="L337">                    return;</span>
+                default:
+<span class="nc" id="L339">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L341">        }</span>
+    }
+
+    /**
+     * Изменяет email текущего пользователя.
+     * Запрашивает новый email и подтверждение пароля.
+     */
+    private static void changeEmail() {
+<span class="fc" id="L349">        String email = inputValidator.getStringInput(&quot;Введите новый email: &quot;);</span>
+<span class="fc" id="L350">        String password = inputValidator.getStringInput(&quot;Подтвердите изменение (введите пароль): &quot;);</span>
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">        if (!financeTracker.isPasswordEqual(password)) {</span>
+<span class="nc" id="L352">            System.out.println(&quot;Пароль неверный! Попробуйте снова&quot;);</span>
+<span class="nc" id="L353">            return;</span>
+        }
+<span class="fc" id="L355">        financeTracker.changeEmail(email);</span>
+<span class="fc" id="L356">        System.out.println(&quot;Изменения сохранены. Ваш новый email: &quot; + email);</span>
+<span class="fc" id="L357">    }</span>
+
+    /**
+     * Изменяет имя текущего пользователя.
+     * Запрашивает новое имя и подтверждение пароля.
+     */
+    private static void changePassword() {
+<span class="fc" id="L364">        String oldPassword = inputValidator.getStringInput(&quot;Введите старый пароль: &quot;);</span>
+<span class="pc bpc" id="L365" title="1 of 2 branches missed.">        if (!financeTracker.isPasswordEqual(oldPassword)) {</span>
+<span class="nc" id="L366">            System.out.println(&quot;Пароль неверный! Попробуйте снова&quot;);</span>
+<span class="nc" id="L367">            return;</span>
+        }
+<span class="fc" id="L369">        String newPassword = inputValidator.getStringInput(&quot;Введите новый пароль: &quot;);</span>
+<span class="fc" id="L370">        String confirm = inputValidator.getStringInput(&quot;Подтвердите пароль: &quot;);</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">        if (!newPassword.equals(confirm)) {</span>
+<span class="nc" id="L372">            System.out.println(&quot;Пароли не совпадают! Попробуйте снова&quot;);</span>
+<span class="nc" id="L373">            return;</span>
+        }
+<span class="fc" id="L375">        financeTracker.changePassword(newPassword);</span>
+<span class="fc" id="L376">        System.out.println(&quot;Изменения сохранены&quot;);</span>
+<span class="fc" id="L377">    }</span>
+
+    /**
+     * Удаляет профиль текущего пользователя.
+     * Запрашивает подтверждение пароля для удаления.
+     */
+    private static void changeName() {
+<span class="fc" id="L384">        String name = inputValidator.getStringInput(&quot;Введите новое имя: &quot;);</span>
+<span class="fc" id="L385">        String password = inputValidator.getStringInput(&quot;Подтвердите изменение (введите пароль): &quot;);</span>
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">        if (!financeTracker.isPasswordEqual(password)) {</span>
+<span class="nc" id="L387">            System.out.println(&quot;Пароль неверный! Попробуйте снова&quot;);</span>
+<span class="nc" id="L388">            return;</span>
+        }
+<span class="fc" id="L390">        financeTracker.changeName(name);</span>
+<span class="fc" id="L391">        System.out.println(&quot;Изменения сохранены. Ваше новое имя: &quot; + name);</span>
+<span class="fc" id="L392">    }</span>
+
+    /**
+     * Удаляет профиль текущего пользователя.
+     * Запрашивает подтверждение пароля для удаления.
+     */
+    private static void deleteProfile() {
+
+<span class="fc" id="L400">        String password = inputValidator.getStringInput(&quot;Вы уверены что хотите удалить аккаунт? Для подтверждения введите пароль: &quot;);</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">        if (!financeTracker.isPasswordEqual(password)) {</span>
+<span class="nc" id="L402">            System.out.println(&quot;Пароль неверный! Попробуйте снова&quot;);</span>
+<span class="nc" id="L403">            viewProfile();</span>
+<span class="nc" id="L404">            return;</span>
+        }
+<span class="fc" id="L406">        financeTracker.deleteUser(financeTracker.getId());</span>
+<span class="fc" id="L407">        System.out.println(&quot;Ваш профиль удален!&quot;);</span>
+
+<span class="fc" id="L409">    }</span>
+
+    // BUDGET MANAGE
+    /**
+     * Управление месячным бюджетом пользователя.
+     * Позволяет установить бюджет и просмотреть текущие расходы и остаток.
+     */
+    private static void manageBudget() {
+        while (true) {
+<span class="fc" id="L418">            System.out.println(financeTracker.viewBudget());</span>
+<span class="fc" id="L419">            System.out.println(&quot;1. Установить месячный бюджет&quot;);</span>
+<span class="fc" id="L420">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L421">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L422" title="1 of 3 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L424">                    String month = inputValidator.getStringInput(&quot;Введите месяц (гггг-мм) :&quot;);</span>
+<span class="fc" id="L425">                    double budget = inputValidator.getDoubleInput(&quot;Введите сумму бюджета: &quot;);</span>
+<span class="fc" id="L426">                    financeTracker.addBudget(month, budget);</span>
+<span class="fc" id="L427">                    System.out.println(&quot;Месячный бюджет установлен!&quot;);</span>
+<span class="fc" id="L428">                    break;</span>
+                case 0:
+<span class="fc" id="L430">                    return;</span>
+                default:
+<span class="nc" id="L432">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L434">        }</span>
+    }
+
+    // GOAL MANAGE
+    /**
+     * Управление финансовыми целями пользователя.
+     * Позволяет установить новую цель и просмотреть прогресс по текущей цели.
+     */
+    private static void manageGoals() {
+        while (true) {
+<span class="fc" id="L444">            System.out.println(financeTracker.viewGoal());</span>
+<span class="fc" id="L445">            System.out.println(&quot;1. Установить новую цель&quot;);</span>
+<span class="fc" id="L446">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L447">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L448" title="1 of 3 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L450">                    String name = inputValidator.getStringInput(&quot;Введите название цели: &quot;);</span>
+<span class="fc" id="L451">                    double target = inputValidator.getDoubleInput(&quot;Введите целевую сумму: &quot;);</span>
+<span class="fc" id="L452">                    financeTracker.setGoal(name, target);</span>
+<span class="fc" id="L453">                    System.out.println(&quot;Цель установлена!&quot;);</span>
+<span class="fc" id="L454">                    break;</span>
+                case 0:
+<span class="fc" id="L456">                    return;</span>
+                default:
+<span class="nc" id="L458">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L460">        }</span>
+    }
+
+    // STATISTICS
+    /**
+     * Управление статистикой и аналитикой пользователя.
+     * Позволяет просмотреть баланс, доходы и расходы за период, расходы по категориям и сформировать отчёт.
+     */
+    private static void manageStatistic() { //TODO: add move 2-4 (DONE)
+        while (true) {
+<span class="fc" id="L470">            System.out.println(&quot;1. Показать текущий баланс&quot;);</span>
+<span class="fc" id="L471">            System.out.println(&quot;2. Показать доходы и расходы за период&quot;);</span>
+<span class="fc" id="L472">            System.out.println(&quot;3. Показать расходы по категориям&quot;);</span>
+<span class="fc" id="L473">            System.out.println(&quot;4. Сформировать отчёт&quot;);</span>
+<span class="fc" id="L474">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L475">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L476" title="1 of 6 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="fc" id="L478">                    System.out.println(&quot;Текущий баланс: &quot; + financeTracker.getBalance());</span>
+<span class="fc" id="L479">                    break;</span>
+                case 2:
+<span class="fc" id="L481">                    LocalDate start = inputValidator.getDateInput(&quot;Введите дату начала периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L482">                    LocalDate end = inputValidator.getDateInput(&quot;Введите дату конца периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L483">                    System.out.println(&quot;Суммарный доход за период: &quot; + financeTracker.getIncomeOfPeriod(start, end));</span>
+<span class="fc" id="L484">                    System.out.println(&quot;Суммарный расход за период: &quot; + financeTracker.getExpensesOfPeriod(start, end));</span>
+<span class="fc" id="L485">                    break;</span>
+                case 3:
+<span class="fc" id="L487">                    start = inputValidator.getDateInput(&quot;Введите дату начала периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L488">                    end = inputValidator.getDateInput(&quot;Введите дату конца периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L489">                    System.out.println(&quot;Расходы по категориям за период: &quot;);</span>
+<span class="fc" id="L490">                    financeTracker.getExpensesByCategory(start, end).forEach((category, amount) -&gt;</span>
+<span class="fc" id="L491">                            System.out.printf(&quot;- %s: %.2f\n&quot;, category, amount));</span>
+<span class="fc" id="L492">                    break;</span>
+                case 4:
+<span class="fc" id="L494">                    start = inputValidator.getDateInput(&quot;Введите дату начала периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L495">                    end = inputValidator.getDateInput(&quot;Введите дату конца периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L496">                    System.out.println(financeTracker.generateReport(start, end));</span>
+<span class="fc" id="L497">                    break;</span>
+                case 0:
+<span class="fc" id="L499">                    return;</span>
+                default:
+<span class="nc" id="L501">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L503">        }</span>
+    }
+
+
+// ADMIN FEATURES
+    /**
+     * Просмотр списка пользователей (доступно только администратору).
+     * Позволяет просматривать транзакции пользователей, удалять или блокировать их.
+     */
+    private static void viewUsersList() {
+<span class="pc bpc" id="L513" title="1 of 2 branches missed.">        if (!financeTracker.hasAccess(financeTracker.getId())) {</span>
+<span class="nc" id="L514">            System.out.println(&quot;У вас нет права доступа!&quot;);</span>
+<span class="nc" id="L515">            return;</span>
+        }
+        while (true) {
+<span class="fc" id="L518">            financeTracker.viewUsersList();</span>
+<span class="fc" id="L519">            System.out.println(&quot;1. Просмотреть транзакции пользователя&quot;);</span>
+<span class="fc" id="L520">            System.out.println(&quot;2. Заблокировать пользователя&quot;);</span>
+<span class="fc" id="L521">            System.out.println(&quot;3. Удалить пользователя&quot;);</span>
+<span class="fc" id="L522">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L523">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L524" title="3 of 5 branches missed.">            switch (choice) {</span>
+                case 1:
+<span class="nc" id="L526">                    String id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
+<span class="nc bnc" id="L527" title="All 2 branches missed.">                    if (financeTracker.isUserExist(id)) viewTransactions(id);</span>
+<span class="nc" id="L528">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
+
+<span class="nc" id="L530">                    break;</span>
+                case 2:
+<span class="fc" id="L532">                    id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">                    if (financeTracker.isUserExist(id)) {</span>
+<span class="nc bnc" id="L534" title="All 2 branches missed.">                        if (!financeTracker.hasAccess(id)) financeTracker.banUser(id);</span>
+<span class="nc" id="L535">                        else System.out.println(&quot;Вы не можете заблокировать аккаунт администратора!&quot;);</span>
+                    }
+<span class="fc" id="L537">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
+<span class="fc" id="L538">                    break;</span>
+                case 3:
+<span class="nc" id="L540">                    id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">                    if (financeTracker.isUserExist(id)) {</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">                        if (!financeTracker.hasAccess(id)) financeTracker.deleteUser(id);</span>
+<span class="nc" id="L543">                        else System.out.println(&quot;Вы не можете удалить аккаунт администратора!&quot;);</span>
+                    }
+<span class="nc" id="L545">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
+                case 0:
+<span class="fc" id="L547">                    return;</span>
+                default:
+<span class="nc" id="L549">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+            }
+<span class="fc" id="L551">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

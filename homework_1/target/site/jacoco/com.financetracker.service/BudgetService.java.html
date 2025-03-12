@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">BudgetService.java</span></div><h1>BudgetService.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
+
+import com.financetracker.model.BudgetRecord;
+import com.financetracker.model.Transaction;
+import com.financetracker.repository.BudgetRepository;
+
+import java.util.Map;
+
+public class BudgetService {
+
+    private BudgetRepository budgetRepository;
+
+<span class="fc" id="L13">    public BudgetService(BudgetRepository budgetRepository) {</span>
+<span class="fc" id="L14">        this.budgetRepository = budgetRepository;</span>
+<span class="fc" id="L15">    }</span>
+    /**
+     * Возвращает месяц, связанный с бюджетом пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return месяц, связанный с бюджетом.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public String getMonth(String id) {
+<span class="nc bnc" id="L24" title="All 2 branches missed.">        if (budgetRepository.findBudget(id) == null) {</span>
+<span class="nc" id="L25">            throw new IllegalArgumentException(&quot;Budget for user with id &quot; + id + &quot; is not set&quot;);</span>
+        }
+<span class="nc" id="L27">        return budgetRepository.findBudget(id).getMonth();</span>
+    }
+
+    /**
+     * Добавляет бюджет для пользователя на указанный месяц.
+     * Если у пользователя есть транзакции за этот месяц, они учитываются в расходах.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param month месяц для которого устанавливается бюджет.
+     * @param budget сумма бюджета.
+     * @throws IllegalArgumentException если месяц или сумма бюджета некорректны.
+     */
+    public void addBudget(String id, String month, double budget) {
+<span class="pc bpc" id="L40" title="3 of 6 branches missed.">        if (month == null || month.trim().isEmpty() || budget &lt; 0) {</span>
+<span class="nc" id="L41">            throw new IllegalArgumentException(&quot;Month cannot be null or empty, and budget must be non-negative&quot;);</span>
+        }
+<span class="fc" id="L43">        budgetRepository.saveBudget(id, new BudgetRecord(month, budget));</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Проверяет, установлен ли бюджет для пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если бюджет установлен; false, если нет.
+     */
+    public boolean isBudgetSet(String id) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        return budgetRepository.findBudget(id) != null;</span>
+    }
+
+    /**
+     * Возвращает месячный бюджет пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return сумма месячного бюджета.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public double getMonthlyBudget(String id) {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (budgetRepository.findBudget(id) == null) {</span>
+<span class="nc" id="L65">            throw new IllegalArgumentException(&quot;Budget for user with id &quot; + id + &quot; is not set&quot;);</span>
+        }
+<span class="fc" id="L67">        return budgetRepository.findBudget(id).getBudget();</span>
+    }
+
+    /**
+     * Возвращает сумму расходов пользователя за текущий месяц.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return сумма расходов.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public double getMonthlyExpress(String id) {
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (budgetRepository.findBudget(id) == null) {</span>
+<span class="nc" id="L79">            throw new IllegalArgumentException(&quot;Budget for user with id &quot; + id + &quot; is not set&quot;);</span>
+        }
+<span class="fc" id="L81">        return budgetRepository.findBudget(id).getExpress();</span>
+    }
+
+    /**
+     * Добавляет сумму к расходам пользователя за текущий месяц.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param express сумма расходов.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public void addMonthlyExpress(String id, double express) {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (budgetRepository.findBudget(id) == null) {</span>
+<span class="nc" id="L93">            throw new IllegalArgumentException(&quot;Budget for user with id &quot; + id + &quot; is not set&quot;);</span>
+        }
+<span class="fc" id="L95">        budgetRepository.findBudget(id).addExpress(express);</span>
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * Возвращает оставшуюся сумму бюджета пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return оставшаяся сумма бюджета.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public double getRemaining(String id) {
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (budgetRepository.findBudget(id) == null) {</span>
+<span class="nc" id="L107">            throw new IllegalArgumentException(&quot;Budget for user with id &quot; + id + &quot; is not set&quot;);</span>
+        }
+<span class="fc" id="L109">        return budgetRepository.findBudget(id).getBudget() - budgetRepository.findBudget(id).getExpress();</span>
+    }
+
+    public String viewBudget(String id) {
+<span class="fc" id="L113">        StringBuilder budgetReport = new StringBuilder();</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (!isBudgetSet(id)) {</span>
+<span class="fc" id="L115">            budgetReport.append(&quot;Месячный бюджет не установлен\n&quot;);</span>
+        } else {
+
+<span class="fc" id="L118">            budgetReport.append(&quot;Месячный бюджет: &quot;).append(getMonthlyBudget(id)).append(&quot;\nРасходы за месяц: &quot;)</span>
+<span class="fc" id="L119">                        .append(getMonthlyExpress(id)).append(&quot;\nОстаток бюджета: &quot;).append(getRemaining(id)).append(&quot;\n&quot;);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            if (getRemaining(id) &lt; 0) {</span>
+<span class="nc" id="L121">                budgetReport.append(&quot;Внимание! Вы превысили месячный бюджет на &quot;).append(Math.abs(getRemaining(id))).append(&quot;\n&quot;);</span>
+            }
+        }
+<span class="fc" id="L124">        return budgetReport.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
