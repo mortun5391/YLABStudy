@@ -1,31 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.repository</a> &gt; <span class="el_source">BudgetRepository.java</span></div><h1>BudgetRepository.java</h1><pre class="source lang-java linenums">package com.financetracker.repository;
 
 import com.financetracker.model.BudgetRecord;
-import com.financetracker.model.Goal;
-import com.financetracker.model.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
-<span class="fc" id="L10">public class BudgetRepository {</span>
+/**
+ * Репозиторий для управления бюджетами пользователей.
+ * Предоставляет методы для сохранения, поиска и удаления бюджетов.
+ */
+<span class="fc" id="L12">public class BudgetRepository {</span>
     /**
      * Карта для хранения бюджетов пользователей.
      * Ключ: идентификатор бюджета (String).
      * Значение: объект BudgetRecord.
      */
-<span class="fc" id="L16">    private Map&lt;String, BudgetRecord&gt; budgets = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L18">    private Map&lt;String, BudgetRecord&gt; budgets = new HashMap&lt;&gt;();</span>
 
+    /**
+     * Сохраняет бюджет пользователя.
+     *
+     * @param id           уникальный идентификатор бюджета.
+     * @param budgetRecord объект BudgetRecord, содержащий информацию о бюджете.
+     */
     public void saveBudget(String id, BudgetRecord budgetRecord) {
-<span class="fc" id="L19">        budgets.put(id, budgetRecord);</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L27">        budgets.put(id, budgetRecord);</span>
+<span class="fc" id="L28">    }</span>
 
+    /**
+     * Возвращает бюджет пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор бюджета.
+     * @return объект BudgetRecord, если бюджет найден; null, если бюджет не найден.
+     */
     public BudgetRecord findBudget(String id) {
-<span class="fc" id="L23">        return budgets.get(id);</span>
+<span class="fc" id="L37">        return budgets.get(id);</span>
     }
 
+    /**
+     * Удаляет бюджет пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор бюджета.
+     */
     public void deleteBudget(String id) {
-<span class="nc" id="L27">        budgets.remove(id);</span>
-<span class="nc" id="L28">    }</span>
-
+<span class="nc" id="L46">        budgets.remove(id);</span>
+<span class="nc" id="L47">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

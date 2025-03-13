@@ -109,14 +109,21 @@ public class BudgetService {
         return budgetRepository.findBudget(id).getBudget() - budgetRepository.findBudget(id).getExpress();
     }
 
+    /**
+     * Отображает информацию о месячном бюджете пользователя.
+     * Формирует отчет, содержащий установленный месячный бюджет, расходы за месяц,
+     * остаток бюджета и предупреждение, если бюджет превышен.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка с отчетом о месячном бюджете. Если бюджет не установлен, возвращается сообщение об этом.
+     */
     public String viewBudget(String id) {
         StringBuilder budgetReport = new StringBuilder();
         if (!isBudgetSet(id)) {
             budgetReport.append("Месячный бюджет не установлен\n");
         } else {
-
             budgetReport.append("Месячный бюджет: ").append(getMonthlyBudget(id)).append("\nРасходы за месяц: ")
-                        .append(getMonthlyExpress(id)).append("\nОстаток бюджета: ").append(getRemaining(id)).append("\n");
+                    .append(getMonthlyExpress(id)).append("\nОстаток бюджета: ").append(getRemaining(id)).append("\n");
             if (getRemaining(id) < 0) {
                 budgetReport.append("Внимание! Вы превысили месячный бюджет на ").append(Math.abs(getRemaining(id))).append("\n");
             }

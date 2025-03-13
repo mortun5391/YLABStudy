@@ -58,7 +58,7 @@
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>${bytebuddy.version}</version> <!-- Проверьте наличие более новой версии -->
+            <version>${bytebuddy.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- AssertJ для улучшенных assert-ов -->

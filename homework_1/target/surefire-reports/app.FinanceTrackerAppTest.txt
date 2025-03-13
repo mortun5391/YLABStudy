@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: app.FinanceTrackerAppTest
 -------------------------------------------------------------------------------
-Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.483 s -- in app.FinanceTrackerAppTest
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.363 s -- in app.FinanceTrackerAppTest

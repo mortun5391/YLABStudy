@@ -1,48 +1,72 @@
 package com.financetracker.service;
 
 import com.financetracker.model.Transaction;
-import com.financetracker.model.User;
 import com.financetracker.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+/**
+ * Сервис для управления транзакциями пользователей.
+ * Предоставляет методы для добавления, удаления, изменения и получения информации о транзакциях.
+ */
 public class TransactionService {
     private UserRepository userRepository;
 
+    /**
+     * Конструктор класса TransactionService.
+     *
+     * @param userRepository репозиторий пользователей, используемый для доступа к данным транзакций.
+     */
     public TransactionService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     /**
-     * Добавляет транзакцию для текущего пользователя.
-     * Если транзакция является доходом и у пользователя установлена финансовая цель,
-     * сумма транзакции добавляется к цели.
+     * Добавляет транзакцию для указанного пользователя.
      *
-     * @param amount сумма транзакции.
-     * @param category категория транзакции.
-     * @param date дата транзакции.
+     * @param id          уникальный идентификатор пользователя.
+     * @param amount      сумма транзакции.
+     * @param category    категория транзакции.
+     * @param date        дата транзакции.
      * @param description описание транзакции.
-     * @param isIncome true, если транзакция является доходом; false, если расходом.
-     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     * @param isIncome    true, если транзакция является доходом; false, если расходом.
      */
     public void addTransaction(String id, double amount, String category, LocalDate date,
                                String description, boolean isIncome) {
-        userRepository.addTransaction(id,new Transaction(amount, category, date, description, isIncome));
+        userRepository.addTransaction(id, new Transaction(amount, category, date, description, isIncome));
     }
 
-
+    /**
+     * Возвращает все транзакции пользователя.
+     *
+     * @param userId уникальный идентификатор пользователя.
+     * @return Map<String, Transaction>, где ключ — идентификатор транзакции, а значение — объект транзакции.
+     */
     public Map<String, Transaction> getTransactions(String userId) {
         return userRepository.getTransactions(userId);
     }
 
+    /**
+     * Возвращает транзакцию по её идентификатору.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @return объект транзакции или null, если транзакция не найдена.
+     */
     public Transaction getTransaction(String userId, String transactionId) {
         return userRepository.getTransaction(userId, transactionId);
     }
 
+    /**
+     * Удаляет транзакцию по её идентификатору.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @return true, если транзакция успешно удалена; false, если транзакция не найдена.
+     */
     public boolean removeTransaction(String userId, String transactionId) {
         if (userRepository.getTransaction(userId, transactionId) == null) {
             return false;
@@ -51,20 +75,50 @@ public class TransactionService {
         return true;
     }
 
+    /**
+     * Проверяет, существует ли транзакция с указанным идентификатором.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @return true, если транзакция существует; false, если нет.
+     */
     public boolean isTransactionThere(String userId, String transactionId) {
-        return userRepository.getTransaction(userId , transactionId) != null;
+        return userRepository.getTransaction(userId, transactionId) != null;
     }
 
+    /**
+     * Устанавливает новую сумму для транзакции.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @param amount        новая сумма транзакции.
+     */
     public void setTransactionAmount(String userId, String transactionId, double amount) {
         userRepository.getTransaction(userId, transactionId).setAmount(amount);
     }
 
+    /**
+     * Устанавливает новую категорию для транзакции.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @param category      новая категория транзакции.
+     */
     public void setTransactionCategory(String userId, String transactionId, String category) {
         userRepository.getTransaction(userId, transactionId).setCategory(category);
     }
+
+    /**
+     * Устанавливает новое описание для транзакции.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @param description   новое описание транзакции.
+     */
     public void setTransactionDescription(String userId, String transactionId, String description) {
         userRepository.getTransaction(userId, transactionId).setDescription(description);
     }
+
     /**
      * Возвращает текущий баланс пользователя.
      * Баланс рассчитывается как сумма всех доходов за вычетом всех расходов.
@@ -81,9 +135,9 @@ public class TransactionService {
     /**
      * Возвращает сумму доходов пользователя за указанный период.
      *
-     * @param id уникальный идентификатор пользователя.
+     * @param id    уникальный идентификатор пользователя.
      * @param start начальная дата периода.
-     * @param end конечная дата периода.
+     * @param end   конечная дата периода.
      * @return сумма доходов за период.
      */
     public double getIncomeOfPeriod(String id, LocalDate start, LocalDate end) {
@@ -96,9 +150,9 @@ public class TransactionService {
     /**
      * Возвращает сумму расходов пользователя за указанный период.
      *
-     * @param id уникальный идентификатор пользователя.
+     * @param id    уникальный идентификатор пользователя.
      * @param start начальная дата периода.
-     * @param end конечная дата периода.
+     * @param end   конечная дата периода.
      * @return сумма расходов за период.
      */
     public double getExpensesOfPeriod(String id, LocalDate start, LocalDate end) {
@@ -111,9 +165,9 @@ public class TransactionService {
     /**
      * Возвращает расходы пользователя по категориям за указанный период.
      *
-     * @param id уникальный идентификатор пользователя.
+     * @param id    уникальный идентификатор пользователя.
      * @param start начальная дата периода.
-     * @param end конечная дата периода.
+     * @param end   конечная дата периода.
      * @return Map<String, Double>, где ключ — категория, а значение — сумма расходов по этой категории.
      */
     public Map<String, Double> getExpensesByCategory(String id, LocalDate start, LocalDate end) {
@@ -132,21 +186,27 @@ public class TransactionService {
         return expensesByCategory;
     }
 
+    /**
+     * Рассчитывает сумму расходов пользователя за указанный месяц.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param month месяц в формате "yyyy-MM".
+     * @return сумма расходов за месяц.
+     */
     public double calculateMonthlyExpress(String id, String month) {
         return userRepository.getTransactions(id).values().stream()
-                .mapToDouble(transaction -> !transaction.isIncome() && transaction.getDate().toString().substring(0,7).equals(month) ?
+                .mapToDouble(transaction -> !transaction.isIncome() && transaction.getDate().toString().substring(0, 7).equals(month) ?
                         transaction.getAmount() : 0)
                 .sum();
-
     }
 
     /**
      * Генерирует финансовый отчёт для пользователя за указанный период.
      * Отчёт включает текущий баланс, доходы, расходы и расходы по категориям.
      *
-     * @param id уникальный идентификатор пользователя.
+     * @param id    уникальный идентификатор пользователя.
      * @param start начальная дата периода.
-     * @param end конечная дата периода.
+     * @param end   конечная дата периода.
      * @return строка, содержащая финансовый отчёт.
      */
     public String generateReport(String id, LocalDate start, LocalDate end) {
@@ -166,9 +226,23 @@ public class TransactionService {
         return report.toString();
     }
 
+    /**
+     * Возвращает список всех транзакций пользователя без фильтрации.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionNoFilter(String id) {
         return formatTransactions(userRepository.getTransactions(id).values().stream().toList(), "Список транзакций:");
     }
+
+    /**
+     * Возвращает список транзакций пользователя, отфильтрованных по дате.
+     *
+     * @param id         уникальный идентификатор пользователя.
+     * @param dateFilter дата для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsDateFilter(String id, LocalDate dateFilter) {
         List<Transaction> filteredTransactions = userRepository.getTransactions(id).values().stream()
                 .filter(transaction -> transaction.getDate().isEqual(dateFilter))
@@ -176,6 +250,13 @@ public class TransactionService {
         return formatTransactions(filteredTransactions, "Список транзакций по дате " + dateFilter + ":");
     }
 
+    /**
+     * Возвращает список транзакций пользователя, отфильтрованных по категории.
+     *
+     * @param id             уникальный идентификатор пользователя.
+     * @param categoryFilter категория для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsCategoryFilter(String id, String categoryFilter) {
         List<Transaction> filteredTransactions = userRepository.getTransactions(id).values().stream()
                 .filter(transaction -> transaction.getCategory().equals(categoryFilter))
@@ -183,6 +264,13 @@ public class TransactionService {
         return formatTransactions(filteredTransactions, "Список транзакций по категории " + categoryFilter + ":");
     }
 
+    /**
+     * Возвращает список транзакций пользователя, отфильтрованных по типу (доход/расход).
+     *
+     * @param id             уникальный идентификатор пользователя.
+     * @param isIncomeFilter true для доходов, false для расходов.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsIsIncomeFilter(String id, boolean isIncomeFilter) {
         List<Transaction> filteredTransactions = userRepository.getTransactions(id).values().stream()
                 .filter(transaction -> transaction.isIncome() == isIncomeFilter)
@@ -191,7 +279,13 @@ public class TransactionService {
         return formatTransactions(filteredTransactions, "Список транзакций (" + type + "):");
     }
 
-
+    /**
+     * Форматирует список транзакций в строку.
+     *
+     * @param transactions список транзакций.
+     * @param header       заголовок для списка транзакций.
+     * @return строка, содержащая отформатированный список транзакций.
+     */
     private String formatTransactions(List<Transaction> transactions, String header) {
         StringBuilder transactionList = new StringBuilder();
 

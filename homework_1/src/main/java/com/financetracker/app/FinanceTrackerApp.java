@@ -486,9 +486,7 @@ public class FinanceTrackerApp {
                 case 3:
                     start = inputValidator.getDateInput("Введите дату начала периода (гггг-мм-дд): ");
                     end = inputValidator.getDateInput("Введите дату конца периода (гггг-мм-дд): ");
-                    System.out.println("Расходы по категориям за период: ");
-                    financeTracker.getExpensesByCategory(start, end).forEach((category, amount) ->
-                            System.out.printf("- %s: %.2f\n", category, amount));
+                    System.out.println(financeTracker.getExpensesByCategoryAsString(start, end));
                     break;
                 case 4:
                     start = inputValidator.getDateInput("Введите дату начала периода (гггг-мм-дд): ");

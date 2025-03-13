@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.repository</a> &gt; <span class="el_source">UserRepository.java</span></div><h1>UserRepository.java</h1><pre class="source lang-java linenums">package com.financetracker.repository;
 
-import com.financetracker.model.BudgetRecord;
-import com.financetracker.model.Goal;
+
 import com.financetracker.model.Transaction;
 import com.financetracker.model.User;
 
@@ -10,59 +9,116 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-<span class="fc" id="L13">public class UserRepository {</span>
+/**
+ * Класс репозитория для управления пользователями и их данными.
+ * Предоставляет методы для сохранения, поиска, удаления пользователей,
+ * а также для управления их транзакциями.
+ */
+<span class="fc" id="L17">public class UserRepository {</span>
 
     /**
      * Карта для хранения пользователей по их уникальному идентификатору.
      * Ключ: идентификатор пользователя (String).
      * Значение: объект User.
      */
-<span class="fc" id="L20">    private Map&lt;String, User&gt; users = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L24">    private Map&lt;String, User&gt; users = new HashMap&lt;&gt;();</span>
 
+    /**
+     * Сохраняет пользователя в репозитории.
+     *
+     * @param user объект User, который нужно сохранить.
+     */
     public void saveUser(User user) {
-<span class="fc" id="L23">        users.put(user.getId(), user);</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L32">        users.put(user.getId(), user);</span>
+<span class="fc" id="L33">    }</span>
 
+    /**
+     * Возвращает пользователя по его идентификатору.
+     *
+     * @param id идентификатор пользователя.
+     * @return объект User, если пользователь найден; null, если пользователь не найден.
+     */
     public User findUserById(String id) {
-<span class="fc" id="L27">        return users.get(id);</span>
+<span class="fc" id="L42">        return users.get(id);</span>
     }
 
+    /**
+     * Возвращает пользователя по его email.
+     *
+     * @param email email пользователя.
+     * @return объект User, если пользователь найден; null, если пользователь не найден.
+     */
     public User findUserByEmail(String email) {
-<span class="fc" id="L31">        return users.values().stream()</span>
-<span class="fc" id="L32">                .filter(user -&gt; user.getEmail().equals(email))</span>
-<span class="fc" id="L33">                .findFirst()</span>
-<span class="fc" id="L34">                .orElse(null);</span>
+<span class="fc" id="L52">        return users.values().stream()</span>
+<span class="fc" id="L53">                .filter(user -&gt; user.getEmail().equals(email))</span>
+<span class="fc" id="L54">                .findFirst()</span>
+<span class="fc" id="L55">                .orElse(null);</span>
     }
 
+    /**
+     * Удаляет пользователя из репозитория по его идентификатору.
+     *
+     * @param id идентификатор пользователя, которого нужно удалить.
+     */
     public void deleteUser(String id) {
-<span class="fc" id="L38">        users.remove(id);</span>
-<span class="fc" id="L39">    }</span>
+<span class="fc" id="L64">        users.remove(id);</span>
+<span class="fc" id="L65">    }</span>
 
+    /**
+     * Возвращает список всех пользователей в репозитории.
+     *
+     * @return список объектов User.
+     */
     public List&lt;User&gt; getUsers() {
-<span class="fc" id="L42">        return users.values().stream().toList();</span>
+<span class="fc" id="L73">        return users.values().stream().toList();</span>
     }
 
+    /**
+     * Добавляет транзакцию пользователю по его идентификатору.
+     *
+     * @param userId      идентификатор пользователя.
+     * @param transaction объект Transaction, который нужно добавить.
+     */
     public void addTransaction(String userId, Transaction transaction) {
-<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (users.containsKey(userId)) {</span>
-<span class="fc" id="L47">            users.get(userId).addTransaction(transaction);</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (users.containsKey(userId)) {</span>
+<span class="fc" id="L84">            users.get(userId).addTransaction(transaction);</span>
         }
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L86">    }</span>
 
+    /**
+     * Возвращает карту транзакций пользователя по его идентификатору.
+     *
+     * @param userId идентификатор пользователя.
+     * @return карта транзакций, если пользователь найден; пустая карта, если пользователь не найден.
+     */
     public Map&lt;String, Transaction&gt; getTransactions(String userId) {
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (users.containsKey(userId)) {</span>
-<span class="fc" id="L53">            return users.get(userId).getTransactions();</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (users.containsKey(userId)) {</span>
+<span class="fc" id="L96">            return users.get(userId).getTransactions();</span>
         }
-<span class="nc" id="L55">        return Collections.emptyMap();</span>
+<span class="nc" id="L98">        return Collections.emptyMap();</span>
     }
 
+    /**
+     * Возвращает транзакцию пользователя по её идентификатору.
+     *
+     * @param userId        идентификатор пользователя.
+     * @param transactionId идентификатор транзакции.
+     * @return объект Transaction, если транзакция найдена; null, если транзакция не найдена.
+     */
     public Transaction getTransaction(String userId, String transactionId) {
-<span class="nc" id="L59">        return users.get(userId).getTransaction(transactionId);</span>
+<span class="nc" id="L109">        return users.get(userId).getTransaction(transactionId);</span>
     }
 
+    /**
+     * Удаляет транзакцию пользователя по её идентификатору.
+     *
+     * @param userId        идентификатор пользователя.
+     * @param transactionId идентификатор транзакции, которую нужно удалить.
+     */
     public void removeTransaction(String userId, String transactionId) {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (users.containsKey(userId)) {</span>
-<span class="nc" id="L64">            users.get(userId).removeTransaction(transactionId);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (users.containsKey(userId)) {</span>
+<span class="nc" id="L120">            users.get(userId).removeTransaction(transactionId);</span>
         }
-<span class="nc" id="L66">    }</span>
+<span class="nc" id="L122">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

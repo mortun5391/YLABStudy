@@ -92,6 +92,14 @@ public class GoalService {
         return goalRepository.findGoal(id).getGoalName();
     }
 
+    /**
+     * Отображает информацию о финансовой цели пользователя.
+     * Формирует отчет, содержащий название цели, целевую сумму, текущий прогресс
+     * и сообщение о достижении цели, если прогресс составляет 100% или более.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка с отчетом о финансовой цели. Если цель не установлена, возвращается сообщение об этом.
+     */
     public String viewGoal(String id) {
         StringBuilder goalReport = new StringBuilder();
         if (!isGoalSet(id)) {

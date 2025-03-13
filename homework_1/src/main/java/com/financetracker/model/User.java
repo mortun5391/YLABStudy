@@ -21,7 +21,7 @@ public class User {
      * @param email Email пользователя.
      * @param password Пароль пользователя
      * @param name  Имя пользователя.
-     * @param role Статус пользователя (admin/user/banned)
+     * @param role Роль пользователя (admin/user)
      */
     public User(String email, String password, String name, String role) {
         this.id = UUID.randomUUID().toString().substring(0,8);

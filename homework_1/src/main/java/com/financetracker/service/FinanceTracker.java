@@ -35,29 +35,34 @@ public class FinanceTracker {
     private BudgetService budgetService;
     private GoalService goalService;
 
+    /**
+     * Результат попытки входа пользователя.
+     */
     public enum LoginResult {
         SUCCESS,
         INVALID_CREDENTIALS,
         USER_BANNED
     }
 
-
     /**
      * Конструктор класса FinanceTracker.
      * Инициализирует необходимые структуры данных и создает администратора по умолчанию.
      *
+     * @param userService сервис для работы с пользователями.
+     * @param transactionService сервис для работы с транзакциями.
+     * @param budgetService сервис для работы с бюджетами.
+     * @param goalService сервис для работы с финансовыми целями.
      * @param notificationService сервис уведомлений, который будет использоваться для отправки уведомлений.
      * @throws IllegalArgumentException если notificationService равен null.
      */
-
     public FinanceTracker(UserService userService, TransactionService transactionService, BudgetService budgetService,
-                          GoalService goalService ,NotificationService notificationService) {
+                          GoalService goalService, NotificationService notificationService) {
         this.userService = userService;
         this.transactionService = transactionService;
         this.budgetService = budgetService;
         this.goalService = goalService;
         this.notificationService = notificationService;
-        userService.registerUser("admin@example.com","admin123", "Admin", "admin");
+        userService.registerUser("admin@example.com", "admin123", "Admin", "admin");
     }
 
     /**
@@ -79,7 +84,7 @@ public class FinanceTracker {
      *
      * @param email электронная почта пользователя. Не может быть null или пустой строкой.
      * @param password пароль пользователя. Не может быть null или пустой строкой.
-     * @return true, если вход выполнен успешно; false, если пользователь не найден или пароль неверен.
+     * @return результат попытки входа (SUCCESS, INVALID_CREDENTIALS, USER_BANNED).
      * @throws IllegalArgumentException если email или password равен null или пустой строке.
      */
     public LoginResult loginUser(String email, String password) {
@@ -102,7 +107,6 @@ public class FinanceTracker {
         currentUser = null;
     }
 
-
     /**
      * Удаляет пользователя из системы по его идентификатору.
      * Если удаляемый пользователь является текущим, выполняется выход из системы.
@@ -117,22 +121,50 @@ public class FinanceTracker {
         }
     }
 
+    /**
+     * Блокирует пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор пользователя.
+     */
     public void banUser(String id) {
         userService.banUser(id);
     }
 
+    /**
+     * Возвращает идентификатор текущего пользователя.
+     *
+     * @return идентификатор текущего пользователя.
+     */
     public String getId() {
         return currentUser.getId();
     }
 
+    /**
+     * Проверяет, имеет ли пользователь доступ к определенным операциям.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если пользователь имеет доступ; false, если нет.
+     */
     public boolean hasAccess(String id) {
         return userService.hasAccess(id);
     }
 
+    /**
+     * Проверяет, совпадает ли пароль пользователя с указанным паролем.
+     *
+     * @param password пароль для проверки.
+     * @return true, если пароль совпадает; false, если нет.
+     */
     public boolean isPasswordEqual(String password) {
         return userService.isPasswordEqual(currentUser.getId(), password);
     }
 
+    /**
+     * Проверяет, существует ли пользователь с указанным идентификатором.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если пользователь существует; false, если нет.
+     */
     public boolean isUserExist(String id) {
         return userService.isUserExist(id);
     }
@@ -156,59 +188,110 @@ public class FinanceTracker {
         }
         String id = getId();
 
-        transactionService.addTransaction(id, amount ,category, date, description, isIncome);
+        transactionService.addTransaction(id, amount, category, date, description, isIncome);
         if (budgetService.isBudgetSet(id)) {
-            if (!isIncome && date.toString().substring(0,7).equals(budgetService.getMonth(id))) {
+            if (!isIncome && date.toString().substring(0, 7).equals(budgetService.getMonth(id))) {
                 budgetService.addMonthlyExpress(id, amount);
             }
         }
         if (goalService.isGoalSet(id) && isIncome) {
             goalService.addAmount(id, amount);
         }
-
     }
 
     /**
      * Удаляет транзакцию у текущего пользователя по её идентификатору.
      *
      * @param id уникальный идентификатор транзакции.
+     * @return true, если транзакция успешно удалена; false, если транзакция не найдена.
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public boolean removeTransaction(String id) {
         if (currentUser == null) {
             throw new IllegalStateException("No user is currently logged in");
         }
-       return transactionService.removeTransaction(currentUser.getId(), id);
+        return transactionService.removeTransaction(currentUser.getId(), id);
     }
 
+    /**
+     * Проверяет, существует ли транзакция с указанным идентификатором у текущего пользователя.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @return true, если транзакция существует; false, если нет.
+     */
     public boolean isTransactionThere(String id) {
         return transactionService.isTransactionThere(currentUser.getId(), id);
     }
 
+    /**
+     * Устанавливает новую сумму для транзакции.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @param amount новая сумма транзакции.
+     */
     public void setTransactionAmount(String id, double amount) {
         transactionService.setTransactionAmount(currentUser.getId(), id, amount);
     }
 
+    /**
+     * Устанавливает новую категорию для транзакции.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @param category новая категория транзакции.
+     */
     public void setTransactionCategory(String id, String category) {
         transactionService.setTransactionCategory(currentUser.getId(), id, category);
     }
 
+    /**
+     * Устанавливает новое описание для транзакции.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @param description новое описание транзакции.
+     */
     public void setTransactionDescription(String id, String description) {
         transactionService.setTransactionDescription(currentUser.getId(), id, description);
     }
 
+    /**
+     * Возвращает список всех транзакций текущего пользователя без фильтрации.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsNoFilter(String id) {
         return transactionService.viewTransactionNoFilter(currentUser.getId());
     }
 
+    /**
+     * Возвращает список транзакций текущего пользователя, отфильтрованных по дате.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param dateFilter дата для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsDateFilter(String id, LocalDate dateFilter) {
         return transactionService.viewTransactionsDateFilter(id, dateFilter);
     }
 
+    /**
+     * Возвращает список транзакций текущего пользователя, отфильтрованных по категории.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param categoryFilter категория для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsCategoryFilter(String id, String categoryFilter) {
         return transactionService.viewTransactionsCategoryFilter(id, categoryFilter);
     }
 
+    /**
+     * Возвращает список транзакций текущего пользователя, отфильтрованных по типу (доход/расход).
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param isIncomeFilter true для доходов, false для расходов.
+     * @return строка, содержащая список транзакций.
+     */
     public String viewTransactionsIsIncomeFilter(String id, boolean isIncomeFilter) {
         return transactionService.viewTransactionsIsIncomeFilter(id, isIncomeFilter);
     }
@@ -224,7 +307,7 @@ public class FinanceTracker {
         if (currentUser == null) {
             throw new IllegalStateException("No user is currently logged in");
         }
-        userService.changeEmail(currentUser.getId(),email);
+        userService.changeEmail(currentUser.getId(), email);
     }
 
     /**
@@ -259,6 +342,7 @@ public class FinanceTracker {
      * Отображает профиль текущего пользователя.
      * Выводит статус, имя, email и скрытый пароль.
      *
+     * @return строка, содержащая информацию о профиле.
      * @throws IllegalStateException если текущий пользователь не аутентифицирован.
      */
     public String viewProfile() {
@@ -277,7 +361,6 @@ public class FinanceTracker {
         if (currentUser == null) return;
         userService.viewUsersList(currentUser.getId());
     }
-
 
     /**
      * Возвращает месяц, связанный с бюджетом пользователя.
@@ -358,9 +441,15 @@ public class FinanceTracker {
         return budgetService.getRemaining(id);
     }
 
+    /**
+     * Возвращает информацию о бюджете текущего пользователя.
+     *
+     * @return строка, содержащая информацию о бюджете.
+     */
     public String viewBudget() {
         return budgetService.viewBudget(currentUser.getId());
     }
+
     /**
      * Устанавливает финансовую цель для пользователя.
      *
@@ -425,6 +514,11 @@ public class FinanceTracker {
         return goalService.getGoalName(id);
     }
 
+    /**
+     * Возвращает информацию о финансовой цели текущего пользователя.
+     *
+     * @return строка, содержащая информацию о цели.
+     */
     public String viewGoal() {
         return goalService.viewGoal(currentUser.getId());
     }
@@ -447,7 +541,7 @@ public class FinanceTracker {
      * @return сумма доходов за период.
      */
     public double getIncomeOfPeriod(LocalDate start, LocalDate end) {
-        return transactionService.getIncomeOfPeriod(currentUser.getId(),start,end);
+        return transactionService.getIncomeOfPeriod(currentUser.getId(), start, end);
     }
 
     /**
@@ -462,16 +556,21 @@ public class FinanceTracker {
     }
 
     /**
-     * Возвращает расходы пользователя по категориям за указанный период.
+     * Возвращает строку с расходами по категориям за указанный период.
      *
      * @param start начальная дата периода.
-     * @param end конечная дата периода.
-     * @return Map<String, Double>, где ключ — категория, а значение — сумма расходов по этой категории.
+     * @param end   конечная дата периода.
+     * @return строка, содержащая расходы по категориям.
      */
-    public Map<String, Double> getExpensesByCategory(LocalDate start, LocalDate end) {
-        return transactionService.getExpensesByCategory(currentUser.getId(), start, end);
-    }
+    public String getExpensesByCategoryAsString(LocalDate start, LocalDate end) {
+        Map<String, Double> expensesByCategory = transactionService.getExpensesByCategory(currentUser.getId(), start, end);
 
+        StringBuilder result = new StringBuilder("Расходы по категориям за период:\n");
+        expensesByCategory.forEach((category, amount) ->
+                result.append(String.format("- %s: %.2f\n", category, amount)));
+
+        return result.toString();
+    }
 
     /**
      * Генерирует финансовый отчёт для пользователя за указанный период.

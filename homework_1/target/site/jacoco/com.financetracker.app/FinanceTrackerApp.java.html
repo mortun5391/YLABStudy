@@ -486,21 +486,19 @@ import java.util.*;
                 case 3:
 <span class="fc" id="L487">                    start = inputValidator.getDateInput(&quot;Введите дату начала периода (гггг-мм-дд): &quot;);</span>
 <span class="fc" id="L488">                    end = inputValidator.getDateInput(&quot;Введите дату конца периода (гггг-мм-дд): &quot;);</span>
-<span class="fc" id="L489">                    System.out.println(&quot;Расходы по категориям за период: &quot;);</span>
-<span class="fc" id="L490">                    financeTracker.getExpensesByCategory(start, end).forEach((category, amount) -&gt;</span>
-<span class="fc" id="L491">                            System.out.printf(&quot;- %s: %.2f\n&quot;, category, amount));</span>
-<span class="fc" id="L492">                    break;</span>
+<span class="fc" id="L489">                    System.out.println(financeTracker.getExpensesByCategoryAsString(start, end));</span>
+<span class="fc" id="L490">                    break;</span>
                 case 4:
-<span class="fc" id="L494">                    start = inputValidator.getDateInput(&quot;Введите дату начала периода (гггг-мм-дд): &quot;);</span>
-<span class="fc" id="L495">                    end = inputValidator.getDateInput(&quot;Введите дату конца периода (гггг-мм-дд): &quot;);</span>
-<span class="fc" id="L496">                    System.out.println(financeTracker.generateReport(start, end));</span>
-<span class="fc" id="L497">                    break;</span>
+<span class="fc" id="L492">                    start = inputValidator.getDateInput(&quot;Введите дату начала периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L493">                    end = inputValidator.getDateInput(&quot;Введите дату конца периода (гггг-мм-дд): &quot;);</span>
+<span class="fc" id="L494">                    System.out.println(financeTracker.generateReport(start, end));</span>
+<span class="fc" id="L495">                    break;</span>
                 case 0:
-<span class="fc" id="L499">                    return;</span>
+<span class="fc" id="L497">                    return;</span>
                 default:
-<span class="nc" id="L501">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+<span class="nc" id="L499">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
             }
-<span class="fc" id="L503">        }</span>
+<span class="fc" id="L501">        }</span>
     }
 
 
@@ -510,45 +508,45 @@ import java.util.*;
      * Позволяет просматривать транзакции пользователей, удалять или блокировать их.
      */
     private static void viewUsersList() {
-<span class="pc bpc" id="L513" title="1 of 2 branches missed.">        if (!financeTracker.hasAccess(financeTracker.getId())) {</span>
-<span class="nc" id="L514">            System.out.println(&quot;У вас нет права доступа!&quot;);</span>
-<span class="nc" id="L515">            return;</span>
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">        if (!financeTracker.hasAccess(financeTracker.getId())) {</span>
+<span class="nc" id="L512">            System.out.println(&quot;У вас нет права доступа!&quot;);</span>
+<span class="nc" id="L513">            return;</span>
         }
         while (true) {
-<span class="fc" id="L518">            financeTracker.viewUsersList();</span>
-<span class="fc" id="L519">            System.out.println(&quot;1. Просмотреть транзакции пользователя&quot;);</span>
-<span class="fc" id="L520">            System.out.println(&quot;2. Заблокировать пользователя&quot;);</span>
-<span class="fc" id="L521">            System.out.println(&quot;3. Удалить пользователя&quot;);</span>
-<span class="fc" id="L522">            System.out.println(&quot;0. Выход&quot;);</span>
-<span class="fc" id="L523">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
-<span class="pc bpc" id="L524" title="3 of 5 branches missed.">            switch (choice) {</span>
+<span class="fc" id="L516">            financeTracker.viewUsersList();</span>
+<span class="fc" id="L517">            System.out.println(&quot;1. Просмотреть транзакции пользователя&quot;);</span>
+<span class="fc" id="L518">            System.out.println(&quot;2. Заблокировать пользователя&quot;);</span>
+<span class="fc" id="L519">            System.out.println(&quot;3. Удалить пользователя&quot;);</span>
+<span class="fc" id="L520">            System.out.println(&quot;0. Выход&quot;);</span>
+<span class="fc" id="L521">            int choice = inputValidator.getIntInput(&quot;Выберите действие: &quot;);</span>
+<span class="pc bpc" id="L522" title="3 of 5 branches missed.">            switch (choice) {</span>
                 case 1:
-<span class="nc" id="L526">                    String id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
-<span class="nc bnc" id="L527" title="All 2 branches missed.">                    if (financeTracker.isUserExist(id)) viewTransactions(id);</span>
-<span class="nc" id="L528">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
+<span class="nc" id="L524">                    String id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
+<span class="nc bnc" id="L525" title="All 2 branches missed.">                    if (financeTracker.isUserExist(id)) viewTransactions(id);</span>
+<span class="nc" id="L526">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
 
-<span class="nc" id="L530">                    break;</span>
+<span class="nc" id="L528">                    break;</span>
                 case 2:
-<span class="fc" id="L532">                    id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
-<span class="pc bpc" id="L533" title="1 of 2 branches missed.">                    if (financeTracker.isUserExist(id)) {</span>
-<span class="nc bnc" id="L534" title="All 2 branches missed.">                        if (!financeTracker.hasAccess(id)) financeTracker.banUser(id);</span>
-<span class="nc" id="L535">                        else System.out.println(&quot;Вы не можете заблокировать аккаунт администратора!&quot;);</span>
+<span class="fc" id="L530">                    id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
+<span class="pc bpc" id="L531" title="1 of 2 branches missed.">                    if (financeTracker.isUserExist(id)) {</span>
+<span class="nc bnc" id="L532" title="All 2 branches missed.">                        if (!financeTracker.hasAccess(id)) financeTracker.banUser(id);</span>
+<span class="nc" id="L533">                        else System.out.println(&quot;Вы не можете заблокировать аккаунт администратора!&quot;);</span>
                     }
-<span class="fc" id="L537">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
-<span class="fc" id="L538">                    break;</span>
+<span class="fc" id="L535">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
+<span class="fc" id="L536">                    break;</span>
                 case 3:
-<span class="nc" id="L540">                    id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
-<span class="nc bnc" id="L541" title="All 2 branches missed.">                    if (financeTracker.isUserExist(id)) {</span>
-<span class="nc bnc" id="L542" title="All 2 branches missed.">                        if (!financeTracker.hasAccess(id)) financeTracker.deleteUser(id);</span>
-<span class="nc" id="L543">                        else System.out.println(&quot;Вы не можете удалить аккаунт администратора!&quot;);</span>
+<span class="nc" id="L538">                    id = inputValidator.getStringInput(&quot;Введите id пользователя: &quot;);</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">                    if (financeTracker.isUserExist(id)) {</span>
+<span class="nc bnc" id="L540" title="All 2 branches missed.">                        if (!financeTracker.hasAccess(id)) financeTracker.deleteUser(id);</span>
+<span class="nc" id="L541">                        else System.out.println(&quot;Вы не можете удалить аккаунт администратора!&quot;);</span>
                     }
-<span class="nc" id="L545">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
+<span class="nc" id="L543">                    else System.out.println(&quot;Пользователь с таким id не найден!&quot;);</span>
                 case 0:
-<span class="fc" id="L547">                    return;</span>
+<span class="fc" id="L545">                    return;</span>
                 default:
-<span class="nc" id="L549">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
+<span class="nc" id="L547">                    System.out.println(&quot;Неверный выбор. Попробуйте снова&quot;);</span>
             }
-<span class="fc" id="L551">        }</span>
+<span class="fc" id="L549">        }</span>
     }
 
 }
