@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: utils.InputValidatorTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.954 s -- in utils.InputValidatorTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.321 s -- in utils.InputValidatorTest

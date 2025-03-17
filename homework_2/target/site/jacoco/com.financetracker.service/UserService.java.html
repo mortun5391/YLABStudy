@@ -18,9 +18,9 @@ public class UserService {
      *
      * @param userRepository репозиторий пользователей, который будет использоваться сервисом.
      */
-<span class="nc" id="L21">    public UserService(UserRepository userRepository) {</span>
-<span class="nc" id="L22">        this.userRepository = userRepository;</span>
-<span class="nc" id="L23">    }</span>
+<span class="fc" id="L21">    public UserService(UserRepository userRepository) {</span>
+<span class="fc" id="L22">        this.userRepository = userRepository;</span>
+<span class="fc" id="L23">    }</span>
 
     /**
      * Регистрирует нового пользователя в системе.
@@ -33,22 +33,22 @@ public class UserService {
      * @throws IllegalArgumentException если любой из параметров равен null или пустой строке.
      */
     public boolean registerUser(String email, String password, String name, String role) {
-<span class="nc bnc" id="L36" title="All 6 branches missed.">        if (email == null || email.trim().isEmpty() ||</span>
-<span class="nc bnc" id="L37" title="All 4 branches missed.">                password == null || password.trim().isEmpty() ||</span>
-<span class="nc bnc" id="L38" title="All 4 branches missed.">                name == null || name.trim().isEmpty() ||</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">                role == null || role.trim().isEmpty()) {</span>
+<span class="pc bpc" id="L36" title="3 of 6 branches missed.">        if (email == null || email.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L37" title="2 of 4 branches missed.">                password == null || password.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L38" title="2 of 4 branches missed.">                name == null || name.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                role == null || role.trim().isEmpty()) {</span>
 <span class="nc" id="L40">            throw new IllegalArgumentException(&quot;Email, password, name, and role cannot be null or empty&quot;);</span>
         }
 
         // Проверяем, существует ли пользователь с таким email
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (userRepository.findUserByEmail(email).isPresent()) {</span>
-<span class="nc" id="L45">            return false;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (userRepository.findUserByEmail(email).isPresent()) {</span>
+<span class="fc" id="L45">            return false;</span>
         }
 
         // Создаем и сохраняем нового пользователя
-<span class="nc" id="L49">        User user = new User(email, password, name, role);</span>
-<span class="nc" id="L50">        userRepository.saveUser(user);</span>
-<span class="nc" id="L51">        return true;</span>
+<span class="fc" id="L49">        User user = new User(email, password, name, role);</span>
+<span class="fc" id="L50">        userRepository.saveUser(user);</span>
+<span class="fc" id="L51">        return true;</span>
     }
 
     /**
@@ -61,13 +61,13 @@ public class UserService {
      * @throws IllegalStateException    если аккаунт пользователя заблокирован.
      */
     public boolean loginUser(String email, String password) {
-<span class="nc bnc" id="L64" title="All 8 branches missed.">        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {</span>
+<span class="pc bpc" id="L64" title="4 of 8 branches missed.">        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {</span>
 <span class="nc" id="L65">            throw new IllegalArgumentException(&quot;Email and password cannot be null or empty&quot;);</span>
         }
 
-<span class="nc" id="L68">        Optional&lt;User&gt; userOptional = userRepository.findUserByEmail(email);</span>
-<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (userOptional.isEmpty() || !userOptional.get().getPassword().equals(password)) {</span>
-<span class="nc" id="L70">            return false;</span>
+<span class="fc" id="L68">        Optional&lt;User&gt; userOptional = userRepository.findUserByEmail(email);</span>
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">        if (userOptional.isEmpty() || !userOptional.get().getPassword().equals(password)) {</span>
+<span class="fc" id="L70">            return false;</span>
         }
 
 <span class="nc" id="L73">        User user = userOptional.get();</span>
@@ -85,11 +85,11 @@ public class UserService {
      * @throws IllegalArgumentException если пользователь с указанным id не найден.
      */
     public void deleteUser(long id) {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (userRepository.findUserById(id).isEmpty()) {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (userRepository.findUserById(id).isEmpty()) {</span>
 <span class="nc" id="L89">            throw new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;);</span>
         }
-<span class="nc" id="L91">        userRepository.deleteUser(id);</span>
-<span class="nc" id="L92">    }</span>
+<span class="fc" id="L91">        userRepository.deleteUser(id);</span>
+<span class="fc" id="L92">    }</span>
 
     /**
      * Блокирует пользователя по его идентификатору.
@@ -98,10 +98,11 @@ public class UserService {
      * @throws IllegalArgumentException если пользователь с указанным id не найден.
      */
     public void banUser(long id) {
-<span class="nc" id="L101">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L102">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L103">        user.setStatus(&quot;banned&quot;);</span>
-<span class="nc" id="L104">    }</span>
+<span class="fc" id="L101">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L102">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L103">        user.setStatus(&quot;banned&quot;);</span>
+<span class="fc" id="L104">        userRepository.updateUser(user);</span>
+<span class="fc" id="L105">    }</span>
 
     /**
      * Проверяет, совпадает ли пароль пользователя с указанным паролем.
@@ -112,9 +113,9 @@ public class UserService {
      * @throws IllegalArgumentException если пользователь с указанным id не найден.
      */
     public boolean isPasswordEqual(long id, String password) {
-<span class="nc" id="L115">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L116">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L117">        return user.getPassword().equals(password);</span>
+<span class="fc" id="L116">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L117">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L118">        return user.getPassword().equals(password);</span>
     }
 
     /**
@@ -125,9 +126,9 @@ public class UserService {
      * @throws IllegalArgumentException если пользователь с указанным id не найден.
      */
     public boolean hasAccess(long id) {
-<span class="nc" id="L128">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L129">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L130">        return user.getRole().equalsIgnoreCase(&quot;admin&quot;);</span>
+<span class="fc" id="L129">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L130">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L131">        return user.getRole().equalsIgnoreCase(&quot;admin&quot;);</span>
     }
 
     /**
@@ -137,7 +138,7 @@ public class UserService {
      * @return true, если пользователь существует; false, если нет.
      */
     public boolean isUserExist(long id) {
-<span class="nc" id="L140">        return userRepository.findUserById(id).isPresent();</span>
+<span class="fc" id="L141">        return userRepository.findUserById(id).isPresent();</span>
     }
 
     /**
@@ -149,14 +150,15 @@ public class UserService {
      * @throws IllegalStateException    если пользователь не найден.
      */
     public void changeEmail(long id, String email) {
-<span class="nc bnc" id="L152" title="All 4 branches missed.">        if (email == null || email.trim().isEmpty()) {</span>
-<span class="nc" id="L153">            throw new IllegalArgumentException(&quot;Email cannot be null or empty&quot;);</span>
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">        if (email == null || email.trim().isEmpty()) {</span>
+<span class="nc" id="L154">            throw new IllegalArgumentException(&quot;Email cannot be null or empty&quot;);</span>
         }
 
-<span class="nc" id="L156">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L157">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L158">        user.setEmail(email);</span>
-<span class="nc" id="L159">    }</span>
+<span class="fc" id="L157">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L158">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L159">        user.setEmail(email);</span>
+<span class="fc" id="L160">        userRepository.updateUser(user);</span>
+<span class="fc" id="L161">    }</span>
 
     /**
      * Изменяет пароль пользователя.
@@ -167,14 +169,15 @@ public class UserService {
      * @throws IllegalStateException    если пользователь не найден.
      */
     public void changePassword(long id, String password) {
-<span class="nc bnc" id="L170" title="All 4 branches missed.">        if (password == null || password.trim().isEmpty()) {</span>
-<span class="nc" id="L171">            throw new IllegalArgumentException(&quot;Password cannot be null or empty&quot;);</span>
+<span class="pc bpc" id="L172" title="2 of 4 branches missed.">        if (password == null || password.trim().isEmpty()) {</span>
+<span class="nc" id="L173">            throw new IllegalArgumentException(&quot;Password cannot be null or empty&quot;);</span>
         }
 
-<span class="nc" id="L174">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L175">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L176">        user.setPassword(password);</span>
-<span class="nc" id="L177">    }</span>
+<span class="fc" id="L176">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L177">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L178">        user.setPassword(password);</span>
+<span class="fc" id="L179">        userRepository.updateUser(user);</span>
+<span class="fc" id="L180">    }</span>
 
     /**
      * Изменяет имя пользователя.
@@ -185,14 +188,15 @@ public class UserService {
      * @throws IllegalStateException    если пользователь не найден.
      */
     public void changeName(long id, String name) {
-<span class="nc bnc" id="L188" title="All 4 branches missed.">        if (name == null || name.trim().isEmpty()) {</span>
-<span class="nc" id="L189">            throw new IllegalArgumentException(&quot;Name cannot be null or empty&quot;);</span>
+<span class="pc bpc" id="L191" title="2 of 4 branches missed.">        if (name == null || name.trim().isEmpty()) {</span>
+<span class="nc" id="L192">            throw new IllegalArgumentException(&quot;Name cannot be null or empty&quot;);</span>
         }
 
-<span class="nc" id="L192">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L193">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L194">        user.setName(name);</span>
-<span class="nc" id="L195">    }</span>
+<span class="fc" id="L195">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L196">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L197">        user.setName(name);</span>
+<span class="fc" id="L198">        userRepository.updateUser(user);</span>
+<span class="fc" id="L199">    }</span>
 
     /**
      * Отображает профиль пользователя.
@@ -202,12 +206,12 @@ public class UserService {
      * @throws IllegalStateException если пользователь не найден.
      */
     public String viewProfile(long id) {
-<span class="nc" id="L205">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L206">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
-<span class="nc" id="L207">        return (</span>
-<span class="nc" id="L208">                &quot;\nСтатус: &quot; + user.getRole() +</span>
-<span class="nc" id="L209">                        &quot;\nИмя: &quot; + user.getName() +</span>
-<span class="nc" id="L210">                        &quot;\nEmail: &quot; + user.getEmail() +</span>
+<span class="fc" id="L209">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L210">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L211">        return (</span>
+<span class="fc" id="L212">                &quot;\nСтатус: &quot; + user.getRole() +</span>
+<span class="fc" id="L213">                        &quot;\nИмя: &quot; + user.getName() +</span>
+<span class="fc" id="L214">                        &quot;\nEmail: &quot; + user.getEmail() +</span>
                         &quot;\nПароль: ******** &quot;);
     }
 
@@ -219,29 +223,29 @@ public class UserService {
      * @throws IllegalStateException если пользователь не является администратором.
      */
     public void viewUsersList(long id) {
-<span class="nc" id="L222">        User user = userRepository.findUserById(id)</span>
-<span class="nc" id="L223">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
+<span class="fc" id="L226">        User user = userRepository.findUserById(id)</span>
+<span class="pc" id="L227">                .orElseThrow(() -&gt; new IllegalStateException(&quot;User with id &quot; + id + &quot; not found&quot;));</span>
 
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (!user.getRole().equalsIgnoreCase(&quot;admin&quot;)) {</span>
-<span class="nc" id="L226">            System.out.println(&quot;Только администратор может просматривать список пользователей!&quot;);</span>
-<span class="nc" id="L227">            return;</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        if (!user.getRole().equalsIgnoreCase(&quot;admin&quot;)) {</span>
+<span class="nc" id="L230">            System.out.println(&quot;Только администратор может просматривать список пользователей!&quot;);</span>
+<span class="nc" id="L231">            return;</span>
         }
 
-<span class="nc" id="L230">        System.out.println(&quot;Список пользователей: &quot;);</span>
-<span class="nc" id="L231">        System.out.printf(&quot;%-10s %-20s %-15s %-10s %-10s%n&quot;, &quot;ID&quot;, &quot;Email&quot;, &quot;Имя&quot;, &quot;Роль&quot;, &quot;Статус&quot;);</span>
+<span class="fc" id="L234">        System.out.println(&quot;Список пользователей: &quot;);</span>
+<span class="fc" id="L235">        System.out.printf(&quot;%-10s %-20s %-15s %-10s %-10s%n&quot;, &quot;ID&quot;, &quot;Email&quot;, &quot;Имя&quot;, &quot;Роль&quot;, &quot;Статус&quot;);</span>
 
         // Данные пользователей
-<span class="nc bnc" id="L234" title="All 2 branches missed.">        for (User u : userRepository.getUsers()) {</span>
-<span class="nc" id="L235">            System.out.printf(</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        for (User u : userRepository.getUsers()) {</span>
+<span class="fc" id="L239">            System.out.printf(</span>
                     &quot;%-10s %-20s %-15s %-10s %-10s%n&quot;,
-<span class="nc" id="L237">                    u.getId(),</span>
-<span class="nc" id="L238">                    u.getEmail(),</span>
-<span class="nc" id="L239">                    u.getName(),</span>
-<span class="nc" id="L240">                    u.getRole(),</span>
-<span class="nc" id="L241">                    u.getStatus()</span>
+<span class="fc" id="L241">                    u.getId(),</span>
+<span class="fc" id="L242">                    u.getEmail(),</span>
+<span class="fc" id="L243">                    u.getName(),</span>
+<span class="fc" id="L244">                    u.getRole(),</span>
+<span class="fc" id="L245">                    u.getStatus()</span>
             );
-<span class="nc" id="L243">        }</span>
-<span class="nc" id="L244">    }</span>
+<span class="fc" id="L247">        }</span>
+<span class="fc" id="L248">    }</span>
 
     /**
      * Возвращает пользователя по его email.
@@ -250,7 +254,7 @@ public class UserService {
      * @return объект User, если пользователь найден; null, если пользователь не найден.
      */
     public Optional&lt;User&gt; getUserByEmail(String email) {
-<span class="nc" id="L253">        return userRepository.findUserByEmail(email);</span>
+<span class="fc" id="L257">        return userRepository.findUserByEmail(email);</span>
     }
 
     /**
@@ -260,7 +264,7 @@ public class UserService {
      * @return объект User, если пользователь найден; null, если пользователь не найден.
      */
     public Optional&lt;User&gt; getUserById(long id) {
-<span class="nc" id="L263">        return userRepository.findUserById(id);</span>
+<span class="fc" id="L267">        return userRepository.findUserById(id);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

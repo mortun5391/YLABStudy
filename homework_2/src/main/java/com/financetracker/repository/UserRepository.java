@@ -128,6 +128,27 @@ public class UserRepository {
     }
 
     /**
+     * Обновляет данные пользователя в репозитории.
+     *
+     * @param user объект User с обновленными данными.
+     */
+    public void updateUser(User user) {
+        String sql = "UPDATE finance_schema.users SET email = ?, password = ?, name = ?, role = ?, status = ? WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getPassword());
+            stmt.setString(3, user.getName());
+            stmt.setString(4, user.getRole());
+            stmt.setString(5, user.getStatus());
+            stmt.setLong(6, user.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update user", e);
+        }
+    }
+
+    /**
      * Маппинг ResultSet в объект User.
      */
     private User mapUser(ResultSet rs) throws SQLException {

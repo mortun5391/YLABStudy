@@ -2,6 +2,7 @@ model\GoalTest.class
 utils\InputSimulator.class
 repository\BudgetRepositoryTest.class
 utils\InputValidatorTest.class
+service\UserServiceIntegrationTest.class
 model\TransactionTest.class
 repository\TransactionRepositoryTest.class
 utils\ScannerInputProviderTest.class

@@ -101,6 +101,7 @@ public class UserService {
         User user = userRepository.findUserById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + id + " not found"));
         user.setStatus("banned");
+        userRepository.updateUser(user);
     }
 
     /**
@@ -156,6 +157,7 @@ public class UserService {
         User user = userRepository.findUserById(id)
                 .orElseThrow(() -> new IllegalStateException("User with id " + id + " not found"));
         user.setEmail(email);
+        userRepository.updateUser(user);
     }
 
     /**
@@ -174,6 +176,7 @@ public class UserService {
         User user = userRepository.findUserById(id)
                 .orElseThrow(() -> new IllegalStateException("User with id " + id + " not found"));
         user.setPassword(password);
+        userRepository.updateUser(user);
     }
 
     /**
@@ -192,6 +195,7 @@ public class UserService {
         User user = userRepository.findUserById(id)
                 .orElseThrow(() -> new IllegalStateException("User with id " + id + " not found"));
         user.setName(name);
+        userRepository.updateUser(user);
     }
 
     /**

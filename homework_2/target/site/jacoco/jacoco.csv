@@ -5,13 +5,13 @@ finance-tracker,com.financetracker.app,FinanceTrackerApp,839,0,89,0,290,0,83,0,2
 finance-tracker,com.financetracker.repository,GoalRepository,21,139,4,6,5,41,4,6,0,5
 finance-tracker,com.financetracker.repository,TransactionRepository,36,233,5,9,9,64,5,9,0,7
 finance-tracker,com.financetracker.repository,BudgetRepository,21,139,4,6,5,41,4,6,0,5
-finance-tracker,com.financetracker.repository,UserRepository,38,216,8,12,10,61,8,9,0,7
+finance-tracker,com.financetracker.repository,UserRepository,42,264,7,13,10,75,7,11,0,8
 finance-tracker,com.financetracker.config,DataSourceConfig,24,0,0,0,7,0,2,0,2,0
 finance-tracker,com.financetracker.config,LiquibaseConfig,39,0,0,0,9,0,2,0,2,0
 finance-tracker,com.financetracker.service,GoalService,175,0,18,0,36,0,17,0,8,0
 finance-tracker,com.financetracker.service,FinanceTracker,521,0,34,0,104,0,62,0,45,0
 finance-tracker,com.financetracker.service,FinanceTracker.LoginResult,21,0,0,0,4,0,1,0,1,0
-finance-tracker,com.financetracker.service,UserService,411,0,50,0,79,0,48,0,23,0
+finance-tracker,com.financetracker.service,UserService,99,328,24,26,12,71,31,17,8,15
 finance-tracker,com.financetracker.service,BudgetService,205,0,20,0,41,0,19,0,9,0
 finance-tracker,com.financetracker.service,ConsoleNotificationService,9,0,0,0,3,0,2,0,2,0
 finance-tracker,com.financetracker.service,TransactionService,461,0,34,0,93,0,50,0,33,0
