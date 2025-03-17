@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.repository</a> &gt; <span class="el_source">BudgetRepository.java</span></div><h1>BudgetRepository.java</h1><pre class="source lang-java linenums">package com.financetracker.repository;
+
+import com.financetracker.model.BudgetRecord;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.Optional;
+
+/**
+ * Репозиторий для управления бюджетами пользователей.
+ */
+public class BudgetRepository {
+
+    private final DataSource dataSource;
+
+<span class="fc" id="L16">    public BudgetRepository(DataSource dataSource) {</span>
+<span class="fc" id="L17">        this.dataSource = dataSource;</span>
+<span class="fc" id="L18">    }</span>
+
+    /**
+     * Сохраняет бюджет пользователя.
+     *
+     * @param budgetRecord объект BudgetRecord, содержащий информацию о бюджете.
+     */
+    public void saveBudget(BudgetRecord budgetRecord) {
+<span class="fc" id="L26">        String sql = &quot;INSERT INTO finance_schema.budgets (user_id, month, budget, express) VALUES (?, ?, ?, ?)&quot;;</span>
+<span class="fc" id="L27">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L28">             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="fc" id="L29">            stmt.setLong(1, budgetRecord.getUserId());</span>
+<span class="fc" id="L30">            stmt.setString(2, budgetRecord.getMonth());</span>
+<span class="fc" id="L31">            stmt.setDouble(3, budgetRecord.getBudget());</span>
+<span class="fc" id="L32">            stmt.setDouble(4, budgetRecord.getExpress());</span>
+<span class="fc" id="L33">            stmt.executeUpdate();</span>
+
+            // Получаем сгенерированный ID
+<span class="fc" id="L36">            try (ResultSet rs = stmt.getGeneratedKeys()) {</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">                if (rs.next()) {</span>
+<span class="fc" id="L38">                    budgetRecord.setId(rs.getLong(1));</span>
+                }
+            }
+<span class="nc" id="L41">        } catch (SQLException e) {</span>
+<span class="nc" id="L42">            throw new RuntimeException(&quot;Failed to save budget&quot;, e);</span>
+<span class="fc" id="L43">        }</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Возвращает бюджет пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор бюджета.
+     * @return объект BudgetRecord, если бюджет найден; null, если бюджет не найден.
+     */
+    public Optional&lt;BudgetRecord&gt; findBudget(long id) {
+<span class="fc" id="L53">        String sql = &quot;SELECT * FROM finance_schema.budgets WHERE user_id = ?&quot;;</span>
+<span class="fc" id="L54">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L55">             PreparedStatement stmt = conn.prepareStatement(sql)) {</span>
+<span class="fc" id="L56">            stmt.setLong(1, id);</span>
+<span class="fc" id="L57">            try (ResultSet rs = stmt.executeQuery()) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                if (rs.next()) {</span>
+<span class="fc" id="L59">                    return Optional.of(mapBudget(rs));</span>
+                }
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">            }</span>
+<span class="pc bpc" id="L62" title="2 of 4 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L63">            throw new RuntimeException(&quot;Failed to find budget&quot;, e);</span>
+<span class="fc" id="L64">        }</span>
+<span class="fc" id="L65">        return Optional.empty();</span>
+    }
+
+    /**
+     * Удаляет бюджет пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор пользователя.
+     */
+    public void deleteBudget(long id) {
+<span class="fc" id="L74">        String sql = &quot;DELETE FROM finance_schema.budgets WHERE user_id = ?&quot;;</span>
+<span class="fc" id="L75">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L76">             PreparedStatement stmt = conn.prepareStatement(sql)) {</span>
+<span class="fc" id="L77">            stmt.setLong(1, id);</span>
+<span class="fc" id="L78">            stmt.executeUpdate();</span>
+<span class="nc" id="L79">        } catch (SQLException e) {</span>
+<span class="nc" id="L80">            throw new RuntimeException(&quot;Failed to delete budget&quot;, e);</span>
+<span class="fc" id="L81">        }</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Маппинг ResultSet в объект BudgetRecord.
+     */
+    private BudgetRecord mapBudget(ResultSet rs) throws SQLException {
+<span class="fc" id="L88">        BudgetRecord budgetRecord = new BudgetRecord(</span>
+<span class="fc" id="L89">                rs.getLong(&quot;user_id&quot;),</span>
+<span class="fc" id="L90">                rs.getString(&quot;month&quot;),</span>
+<span class="fc" id="L91">                rs.getDouble(&quot;budget&quot;)</span>
+        );
+<span class="fc" id="L93">        budgetRecord.setId(rs.getLong(&quot;id&quot;));</span>
+<span class="fc" id="L94">        budgetRecord.addExpress(rs.getDouble(&quot;express&quot;));</span>
+<span class="fc" id="L95">        return budgetRecord;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

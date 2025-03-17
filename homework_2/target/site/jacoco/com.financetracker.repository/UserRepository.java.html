@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.repository</a> &gt; <span class="el_source">UserRepository.java</span></div><h1>UserRepository.java</h1><pre class="source lang-java linenums">package com.financetracker.repository;
+
+import com.financetracker.model.Transaction;
+import com.financetracker.model.User;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
+
+/**
+ * Класс репозитория для управления пользователями и их данными.
+ * Предоставляет методы для сохранения, поиска, удаления пользователей,
+ * а также для управления их транзакциями.
+ */
+public class UserRepository {
+
+    private final DataSource dataSource;
+
+<span class="fc" id="L19">    public UserRepository(DataSource dataSource) {</span>
+<span class="fc" id="L20">        this.dataSource = dataSource;</span>
+<span class="fc" id="L21">    }</span>
+
+    /**
+     * Сохраняет пользователя в репозитории.
+     *
+     * @param user объект User, который нужно сохранить.
+     */
+    public void saveUser(User user) {
+<span class="fc" id="L29">        String sql = &quot;INSERT INTO finance_schema.users (email, password, name, role, status) VALUES (?, ?, ?, ?, ?)&quot;;</span>
+<span class="fc" id="L30">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L31">             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="fc" id="L32">            stmt.setString(1, user.getEmail());</span>
+<span class="fc" id="L33">            stmt.setString(2, user.getPassword());</span>
+<span class="fc" id="L34">            stmt.setString(3, user.getName());</span>
+<span class="fc" id="L35">            stmt.setString(4, user.getRole());</span>
+<span class="fc" id="L36">            stmt.setString(5, user.getStatus());</span>
+<span class="fc" id="L37">            stmt.executeUpdate();</span>
+
+            // Получаем сгенерированный ID
+<span class="fc" id="L40">            try (ResultSet rs = stmt.getGeneratedKeys()) {</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">                if (rs.next()) {</span>
+<span class="fc" id="L42">                    user.setId(rs.getLong(1));</span>
+                }
+            }
+<span class="nc" id="L45">        } catch (SQLException e) {</span>
+<span class="nc" id="L46">            throw new RuntimeException(&quot;Failed to save user&quot;, e);</span>
+<span class="fc" id="L47">        }</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Возвращает пользователя по его идентификатору.
+     *
+     * @param id идентификатор пользователя.
+     * @return объект User, если пользователь найден; null, если пользователь не найден.
+     */
+    public Optional&lt;User&gt; findUserById(long id) {
+<span class="fc" id="L57">        String sql = &quot;SELECT * FROM finance_schema.users WHERE id = ?&quot;;</span>
+<span class="fc" id="L58">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L59">             PreparedStatement stmt = conn.prepareStatement(sql)) {</span>
+<span class="fc" id="L60">            stmt.setLong(1, id);</span>
+<span class="fc" id="L61">            try (ResultSet rs = stmt.executeQuery()) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                if (rs.next()) {</span>
+<span class="fc" id="L63">                    return Optional.of(mapUser(rs));</span>
+                }
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            }</span>
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L67">            throw new RuntimeException(&quot;Failed to find user by id&quot;, e);</span>
+<span class="fc" id="L68">        }</span>
+<span class="fc" id="L69">        return Optional.empty();</span>
+    }
+
+    /**
+     * Возвращает пользователя по его email.
+     *
+     * @param email email пользователя.
+     * @return объект User, если пользователь найден; null, если пользователь не найден.
+     */
+    public Optional&lt;User&gt; findUserByEmail(String email) {
+<span class="fc" id="L79">        String sql = &quot;SELECT * FROM finance_schema.users WHERE email = ?&quot;;</span>
+<span class="fc" id="L80">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L81">             PreparedStatement stmt = conn.prepareStatement(sql)) {</span>
+<span class="fc" id="L82">            stmt.setString(1, email);</span>
+<span class="fc" id="L83">            try (ResultSet rs = stmt.executeQuery()) {</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">                if (rs.next()) {</span>
+<span class="fc" id="L85">                    return Optional.of(mapUser(rs));</span>
+                }
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            }</span>
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L89">            throw new RuntimeException(&quot;Failed to find user by email&quot;, e);</span>
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">        return Optional.empty();</span>
+    }
+
+    /**
+     * Удаляет пользователя из репозитория по его идентификатору.
+     *
+     * @param id идентификатор пользователя, которого нужно удалить.
+     */
+    public void deleteUser(long id) {
+<span class="fc" id="L100">        String sql = &quot;DELETE FROM finance_schema.users WHERE id = ?&quot;;</span>
+<span class="fc" id="L101">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L102">             PreparedStatement stmt = conn.prepareStatement(sql)) {</span>
+<span class="fc" id="L103">            stmt.setLong(1, id);</span>
+<span class="fc" id="L104">            stmt.executeUpdate();</span>
+<span class="nc" id="L105">        } catch (SQLException e) {</span>
+<span class="nc" id="L106">            throw new RuntimeException(&quot;Failed to delete user&quot;, e);</span>
+<span class="fc" id="L107">        }</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Возвращает список всех пользователей в репозитории.
+     *
+     * @return список объектов User.
+     */
+    public List&lt;User&gt; getUsers() {
+<span class="fc" id="L116">        List&lt;User&gt; users = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L117">        String sql = &quot;SELECT * FROM finance_schema.users&quot;;</span>
+<span class="fc" id="L118">        try (Connection conn = dataSource.getConnection();</span>
+<span class="fc" id="L119">             PreparedStatement stmt = conn.prepareStatement(sql);</span>
+<span class="fc" id="L120">             ResultSet rs = stmt.executeQuery()) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L122">                users.add(mapUser(rs));</span>
+            }
+<span class="nc" id="L124">        } catch (SQLException e) {</span>
+<span class="nc" id="L125">            throw new RuntimeException(&quot;Failed to get users&quot;, e);</span>
+<span class="fc" id="L126">        }</span>
+<span class="fc" id="L127">        return users;</span>
+    }
+
+    /**
+     * Маппинг ResultSet в объект User.
+     */
+    private User mapUser(ResultSet rs) throws SQLException {
+<span class="fc" id="L134">        User user = new User(</span>
+<span class="fc" id="L135">                rs.getString(&quot;email&quot;),</span>
+<span class="fc" id="L136">                rs.getString(&quot;password&quot;),</span>
+<span class="fc" id="L137">                rs.getString(&quot;name&quot;),</span>
+<span class="fc" id="L138">                rs.getString(&quot;role&quot;)</span>
+        );
+<span class="fc" id="L140">        user.setId(rs.getLong(&quot;id&quot;));</span>
+<span class="fc" id="L141">        user.setStatus(rs.getString(&quot;status&quot;));</span>
+<span class="fc" id="L142">        return user;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

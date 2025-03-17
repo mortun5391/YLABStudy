@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GoalService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">GoalService.java</span></div><h1>GoalService.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
+
+import com.financetracker.model.Goal;
+import com.financetracker.repository.GoalRepository;
+
+import java.util.Optional;
+
+public class GoalService {
+
+    private final GoalRepository goalRepository;
+
+<span class="nc" id="L12">    public GoalService(GoalRepository goalRepository) {</span>
+<span class="nc" id="L13">        this.goalRepository = goalRepository;</span>
+<span class="nc" id="L14">    }</span>
+
+    /**
+     * Устанавливает финансовую цель для пользователя.
+     *
+     * @param userId      ID пользователя.
+     * @param name        Название цели.
+     * @param target      Целевая сумма.
+     * @throws IllegalArgumentException если название цели или целевая сумма некорректны.
+     */
+    public void setGoal(long userId, String name, double target) {
+<span class="nc bnc" id="L25" title="All 6 branches missed.">        if (name == null || name.trim().isEmpty() || target &lt; 0) {</span>
+<span class="nc" id="L26">            throw new IllegalArgumentException(&quot;Goal name cannot be null or empty, and target must be non-negative&quot;);</span>
+        }
+<span class="nc" id="L28">        Goal goal = new Goal(userId, target, name);</span>
+<span class="nc" id="L29">        goalRepository.saveGoal(goal);</span>
+<span class="nc" id="L30">    }</span>
+
+    /**
+     * Добавляет сумму к текущему прогрессу финансовой цели пользователя.
+     *
+     * @param userId ID пользователя.
+     * @param amount Сумма для добавления.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public void addAmount(long userId, double amount) {
+<span class="nc" id="L40">        Optional&lt;Goal&gt; goal = goalRepository.findGoal(userId);</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (goal.isEmpty()) {</span>
+<span class="nc" id="L42">            throw new IllegalArgumentException(&quot;Goal for user with id &quot; + userId + &quot; is not set&quot;);</span>
+        }
+<span class="nc" id="L44">        goal.get().addCurrentAmount(amount);</span>
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * Проверяет, установлена ли финансовая цель для пользователя.
+     *
+     * @param userId ID пользователя.
+     * @return true, если цель установлена; false, если нет.
+     */
+    public boolean isGoalSet(long userId) {
+<span class="nc" id="L54">        return goalRepository.findGoal(userId).isPresent();</span>
+    }
+
+    /**
+     * Возвращает прогресс достижения финансовой цели пользователя в процентах.
+     *
+     * @param userId ID пользователя.
+     * @return прогресс в процентах.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public int getProgress(long userId) {
+<span class="nc" id="L65">        Optional&lt;Goal&gt; goal = goalRepository.findGoal(userId);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (goal.isEmpty()) {</span>
+<span class="nc" id="L67">            throw new IllegalArgumentException(&quot;Goal for user with id &quot; + userId + &quot; is not set&quot;);</span>
+        }
+<span class="nc" id="L69">        return goal.get().getProgress();</span>
+    }
+
+    /**
+     * Возвращает целевую сумму финансовой цели пользователя.
+     *
+     * @param userId ID пользователя.
+     * @return целевая сумма.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public double getTargetAmount(long userId) {
+<span class="nc" id="L80">        Optional&lt;Goal&gt; goal = goalRepository.findGoal(userId);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (goal.isEmpty()) {</span>
+<span class="nc" id="L82">            throw new IllegalArgumentException(&quot;Goal for user with id &quot; + userId + &quot; is not set&quot;);</span>
+        }
+<span class="nc" id="L84">        return goal.get().getTargetAmount();</span>
+    }
+
+    /**
+     * Возвращает название финансовой цели пользователя.
+     *
+     * @param userId ID пользователя.
+     * @return название цели.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public String getGoalName(long userId) {
+<span class="nc" id="L95">        Optional&lt;Goal&gt; goal = goalRepository.findGoal(userId);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (goal.isEmpty()) {</span>
+<span class="nc" id="L97">            throw new IllegalArgumentException(&quot;Goal for user with id &quot; + userId + &quot; is not set&quot;);</span>
+        }
+<span class="nc" id="L99">        return goal.get().getGoalName();</span>
+    }
+
+    /**
+     * Отображает информацию о финансовой цели пользователя.
+     *
+     * @param userId ID пользователя.
+     * @return строка с отчетом о финансовой цели.
+     */
+    public String viewGoal(long userId) {
+<span class="nc" id="L109">        StringBuilder goalReport = new StringBuilder();</span>
+<span class="nc" id="L110">        Optional&lt;Goal&gt; goal = goalRepository.findGoal(userId);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (goal.isEmpty()) {</span>
+<span class="nc" id="L112">            goalReport.append(&quot;Цель не установлена\n&quot;);</span>
+        } else {
+<span class="nc" id="L114">            goalReport.append(&quot;Цель: &quot;).append(goal.get().getGoalName()).append(&quot;\n&quot;)</span>
+<span class="nc" id="L115">                    .append(&quot;Целевая сумма: &quot;).append(goal.get().getTargetAmount()).append(&quot;\n&quot;)</span>
+<span class="nc" id="L116">                    .append(&quot;Прогресс по цели: &quot;).append(goal.get().getProgress()).append(&quot;%\n&quot;);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (goal.get().getProgress() &gt;= 100) {</span>
+<span class="nc" id="L118">                goalReport.append(&quot;Вы достигли своей цели!\n&quot;);</span>
+            }
+        }
+<span class="nc" id="L121">        return goalReport.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
