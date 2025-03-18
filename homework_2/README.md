@@ -1,6 +1,6 @@
 # FinanceTracker
 
-**FinanceTracker** — это консольное приложение для управления личными финансами. Оно позволяет пользователям регистрироваться, входить в систему, управлять транзакциями, бюджетами, финансовыми целями, а также просматривать статистику и аналитику.
+**FinanceTracker** — это консольное приложение для управления личными финансами. Оно позволяет пользователям регистрироваться, входить в систему, управлять транзакциями, бюджетами, финансовыми целями, а также просматривать статистику и аналитику. Приложение использует PostgreSQL для хранения данных и Liquibase для управления миграциями базы данных.
 
 ---
 
@@ -37,60 +37,125 @@
 
 - **Java 17** или выше.
 - **Maven** для сборки проекта.
+- **Docker** и **Docker Compose** для запуска базы данных.
 
 ---
 
 ## Установка и запуск
 
-1. **Клонирование репозитория**:
-   ```bash
-   git clone https://github.com/mortun5391/YLABStudy.git
-   cd FinanceTracker
-   ```
+### 1. Клонирование репозитория
+```bash
+git clone https://github.com/mortun5391/YLABStudy.git
+cd FinanceTracker
+```
 
-2. **Сборка проекта**:
-   ```bash
-   mvn clean package
-   ```
+### 2. Сборка проекта
+```bash
+mvn clean package
+```
 
-3. **Запуск приложения**:
+### 3. Запуск приложения с использованием Docker Compose
+1. Убедитесь, что Docker и Docker Compose установлены и запущены.
+2. Запустите базу данных и приложение с помощью Docker Compose:
    ```bash
-   java -jar target/FinanceTracker-1.0-SNAPSHOT.jar
+   docker-compose up --build
    ```
+   Это развернет PostgreSQL с настройками, указанными в `docker-compose.yml`, и запустит приложение.
+
+### 4. Запуск приложения без Docker
+Если вы хотите запустить приложение локально (без Docker), убедитесь, что у вас установлена и запущена PostgreSQL с параметрами, указанными в `application.yml`.
 
 ---
 
-## Использование
+## Конфигурация
 
-### 1. Регистрация и вход
-- При первом запуске зарегистрируйтесь, выбрав пункт **1. Регистрация**.
-- Введите email, пароль и имя.
-- После регистрации войдите в систему, выбрав пункт **2. Вход**.
+### Конфигурация базы данных
+Все параметры подключения к базе данных и настройки Liquibase задаются в файле `application.yml`. Пример конфигурации:
 
-### 2. Управление транзакциями
-- В главном меню выберите **1. Управление транзакциями**.
-- Добавьте транзакцию, указав сумму, категорию, дату, описание и тип (доход/расход).
-- Просмотрите список транзакций с возможностью фильтрации.
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/financetracker
+    username: financetracker_user
+    password: financetracker_password
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.xml
+    default-schema: finance_schema
+```
 
-### 3. Управление бюджетом
-- В главном меню выберите **2. Управление бюджетом**.
-- Установите месячный бюджет, указав месяц и сумму.
-- Просмотрите текущие расходы и остаток бюджета.
+### Docker Compose
+Файл `docker-compose.yml` содержит конфигурацию для запуска PostgreSQL в Docker:
 
-### 4. Управление целями
-- В главном меню выберите **3. Управление целями**.
-- Установите финансовую цель, указав название и целевую сумму.
-- Просмотрите прогресс по цели.
+```yaml
+version: '3.8'
 
-### 5. Статистика и аналитика
-- В главном меню выберите **4. Статистика и аналитика**.
-- Просмотрите текущий баланс, доходы и расходы за период.
-- Сформируйте отчет.
+services:
+  postgres:
+    image: postgres:13
+    container_name: financetracker_db
+    environment:
+      POSTGRES_USER: financetracker_user
+      POSTGRES_PASSWORD: financetracker_password
+      POSTGRES_DB: financetracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-### 6. Административные функции
-- Войдите в систему как администратор (см. раздел **Административный аккаунт**).
-- В главном меню выберите **6. Просмотреть список пользователей**.
-- Удалите или заблокируйте пользователя.
+volumes:
+  postgres_data:
+```
+
+---
+
+## Миграции базы данных
+
+### Liquibase
+Миграции базы данных управляются с помощью Liquibase. Скрипты миграции находятся в директории `src/main/resources/db/changelog`.
+
+- **Создание таблиц**: Скрипты для создания таблиц находятся в `changelog-create-tables.xml`.
+- **Предзаполнение данными**: Скрипты для предзаполнения данными находятся в `changelog-insert-data.xml`.
+
+Пример структуры файла миграции:
+
+```xml
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="mortun5391">
+        <createTable tableName="users" schemaName="finance_schema">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
+```
+
+---
+
+## Тестирование
+
+Для тестирования используется **Testcontainers**, который запускает PostgreSQL в Docker-контейнере. Это позволяет изолировать тесты от основной базы данных.
+
+### Запуск тестов
+```bash
+mvn test
+```
 
 ---
 
@@ -149,17 +214,12 @@
 
 ---
 
-## Тестирование
-
-Для запуска тестов выполните команду:
-```bash
-mvn test
-```
-
----
-
 ## Авторы
 
 - [mortun5391](https://github.com/mortun5391)
 
 ---
+
+## Лицензия
+
+Этот проект распространяется под лицензией MIT. Подробности см. в файле [LICENSE](LICENSE).
