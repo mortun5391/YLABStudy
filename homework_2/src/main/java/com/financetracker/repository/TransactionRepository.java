@@ -64,6 +64,26 @@ public class TransactionRepository {
     }
 
     /**
+     * Возвращает транзакцию по её идентификатору.
+     */
+    public Optional<Transaction> findTransactionByUserAndTransactionId(long userId, long transactionId) {
+        String sql = "SELECT * FROM finance_schema.transactions WHERE id = ? AND user_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, transactionId);
+            stmt.setLong(2, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapTransaction(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find transaction", e);
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Возвращает все транзакции пользователя.
      */
     public List<Transaction> findTransactionsByUserId(long userId) {
@@ -121,7 +141,7 @@ public class TransactionRepository {
      * Маппинг ResultSet в объект Transaction.
      */
     private Transaction mapTransaction(ResultSet rs) throws SQLException {
-        return new Transaction(
+        Transaction transaction = new Transaction(
                 rs.getLong("user_id"),
                 rs.getDouble("amount"),
                 rs.getString("category"),
@@ -129,5 +149,7 @@ public class TransactionRepository {
                 rs.getString("description"),
                 rs.getBoolean("is_income")
         );
+        transaction.setId(rs.getLong("id"));
+        return transaction;
     }
 }

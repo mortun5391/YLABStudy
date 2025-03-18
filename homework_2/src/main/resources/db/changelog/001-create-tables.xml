@@ -6,7 +6,6 @@
 
     <changeSet id="1" author="your_name">
 
-
         <!-- Создание таблицы users -->
         <createTable tableName="users" schemaName="finance_schema">
             <column name="id" type="BIGINT" autoIncrement="true">
@@ -29,7 +28,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_transaction_user" references="finance_schema.users(id)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="amount" type="DECIMAL(19, 2)">
                 <constraints nullable="false"/>
@@ -42,11 +41,11 @@
 
         <!-- Создание таблицы budgets -->
         <createTable tableName="budgets" schemaName="finance_schema">
-            <column name="id" type="BIGINT"  autoIncrement="true">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_budget_user" references="finance_schema.users(id)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="budget" type="DECIMAL(19, 2)">
                 <constraints nullable="false"/>
@@ -63,7 +62,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="fk_goal_user" references="finance_schema.users(id)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="target_amount" type="DECIMAL(19, 2)">
                 <constraints nullable="false"/>
@@ -73,5 +72,36 @@
             </column>
             <column name="goal_name" type="VARCHAR(255)"/>
         </createTable>
+
+        <!-- Добавление внешних ключей с каскадным удалением -->
+        <addForeignKeyConstraint
+                baseTableName="transactions"
+                baseTableSchemaName="finance_schema"
+                baseColumnNames="user_id"
+                constraintName="fk_transaction_user"
+                referencedTableName="users"
+                referencedTableSchemaName="finance_schema"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="budgets"
+                baseTableSchemaName="finance_schema"
+                baseColumnNames="user_id"
+                constraintName="fk_budget_user"
+                referencedTableName="users"
+                referencedTableSchemaName="finance_schema"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="goals"
+                baseTableSchemaName="finance_schema"
+                baseColumnNames="user_id"
+                constraintName="fk_goal_user"
+                referencedTableName="users"
+                referencedTableSchemaName="finance_schema"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
     </changeSet>
 </databaseChangeLog>

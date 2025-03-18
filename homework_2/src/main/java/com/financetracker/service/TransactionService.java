@@ -62,8 +62,8 @@ public class TransactionService {
      * @param transactionId ID транзакции.
      * @return true, если транзакция существует; false, если нет.
      */
-    public boolean isTransactionThere(long transactionId) {
-        return transactionRepository.findTransactionById(transactionId).isPresent();
+    public boolean isTransactionThere(long userId,long transactionId) {
+        return transactionRepository.findTransactionByUserAndTransactionId(userId,transactionId).isPresent();
     }
 
     /**
@@ -72,11 +72,11 @@ public class TransactionService {
      * @param transactionId ID транзакции.
      * @param amount        Новая сумма транзакции.
      */
-    public void setTransactionAmount(long transactionId, double amount) {
-        transactionRepository.findTransactionById(transactionId).ifPresent(transaction -> {
-            transaction.setAmount(amount);
-            transactionRepository.updateTransaction(transaction);
-        });
+    public void setTransactionAmount(long userId, long transactionId, double amount) {
+        Transaction transaction = transactionRepository.findTransactionByUserAndTransactionId(userId,transactionId)
+                .orElseThrow(() -> new IllegalStateException("Transaction with id " + transactionId + " not found"));
+        transaction.setAmount(amount);
+        transactionRepository.updateTransaction(transaction);
     }
 
     /**
@@ -85,8 +85,8 @@ public class TransactionService {
      * @param transactionId ID транзакции.
      * @param category      Новая категория транзакции.
      */
-    public void setTransactionCategory(long transactionId, String category) {
-        transactionRepository.findTransactionById(transactionId).ifPresent(transaction -> {
+    public void setTransactionCategory(long userId,long transactionId, String category) {
+        transactionRepository.findTransactionByUserAndTransactionId(userId,transactionId).ifPresent(transaction -> {
             transaction.setCategory(category);
             transactionRepository.updateTransaction(transaction);
         });
@@ -98,8 +98,8 @@ public class TransactionService {
      * @param transactionId ID транзакции.
      * @param description   Новое описание транзакции.
      */
-    public void setTransactionDescription(long transactionId, String description) {
-        transactionRepository.findTransactionById(transactionId).ifPresent(transaction -> {
+    public void setTransactionDescription(long userId,long transactionId, String description) {
+        transactionRepository.findTransactionByUserAndTransactionId(userId,transactionId).ifPresent(transaction -> {
             transaction.setDescription(description);
             transactionRepository.updateTransaction(transaction);
         });
@@ -279,6 +279,7 @@ public class TransactionService {
         } else {
             transactionList.append(header + "\n");
             for (Transaction transaction : transactions) {
+                System.out.println(transaction.getId());
                 transactionList.append("ID: " + transaction.getId() +
                         ", Сумма: " + transaction.getAmount() +
                         ", Категория: " + transaction.getCategory() +

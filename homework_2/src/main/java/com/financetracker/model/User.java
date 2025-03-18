@@ -12,7 +12,7 @@ public class User {
     private String name;
     private String role; // admin or user
     private String status; // active or banned
-    private HashMap<Long,Transaction> transactions;
+
 
     /**
      * Создаёт нового пользователя.
@@ -29,7 +29,6 @@ public class User {
         this.name = name;
         this.role = role;
         this.status = "active";
-        this.transactions = new HashMap<>();
     }
 
     /**
@@ -72,25 +71,25 @@ public class User {
         return name;
     }
 
-    /**
-     * Возвращает транзакцию по её идентификатору.
-     *
-     * @param id уникальный идентификатор транзакции.
-     * @return объект Transaction, если транзакция найдена; null, если транзакция отсутствует.
-     */
-    public Transaction getTransaction(long id) {
-        return transactions.get(id);
-    }
-
-    /**
-     * Возвращает все транзакции пользователя.
-     *
-     * @return Map<String, Transaction>, где ключом является идентификатор транзакции,
-     * а значением — объект Transaction.
-     */
-    public Map<Long,Transaction> getTransactions() {
-        return transactions;
-    }
+//    /**
+//     * Возвращает транзакцию по её идентификатору.
+//     *
+//     * @param id уникальный идентификатор транзакции.
+//     * @return объект Transaction, если транзакция найдена; null, если транзакция отсутствует.
+//     */
+//    public Transaction getTransaction(long id) {
+//        return transactions.get(id);
+//    }
+//
+//    /**
+//     * Возвращает все транзакции пользователя.
+//     *
+//     * @return Map<String, Transaction>, где ключом является идентификатор транзакции,
+//     * а значением — объект Transaction.
+//     */
+//    public Map<Long,Transaction> getTransactions() {
+//        return transactions;
+//    }
 
     /**
      * Устанавливает адрес электронной почты пользователя.
@@ -131,28 +130,28 @@ public class User {
         this.name = name;
     }
 
-    /**
-     * Добавляет транзакцию в список транзакций пользователя.
-     *
-     * @param transaction объект Transaction для добавления. Не может быть null.
-     * @throws IllegalArgumentException если transaction равен null.
-     */
-    public void addTransaction(Transaction transaction) {
-        if (transaction == null) {
-            throw new IllegalArgumentException("Transaction cannot be null");
-        }
-        transactions.put(transaction.getId(), transaction);
-    }
-
-    /**
-     * Удаляет транзакцию из списка транзакций пользователя.
-     *
-     * @param id объект Transaction для удаления. Не может быть null.
-     * @throws IllegalArgumentException если transaction равен null.
-     */
-    public void removeTransaction(long id) {
-        transactions.remove(id);
-    }
+//    /**
+//     * Добавляет транзакцию в список транзакций пользователя.
+//     *
+//     * @param transaction объект Transaction для добавления. Не может быть null.
+//     * @throws IllegalArgumentException если transaction равен null.
+//     */
+//    public void addTransaction(Transaction transaction) {
+//        if (transaction == null) {
+//            throw new IllegalArgumentException("Transaction cannot be null");
+//        }
+//        transactions.put(transaction.getId(), transaction);
+//    }
+//
+//    /**
+//     * Удаляет транзакцию из списка транзакций пользователя.
+//     *
+//     * @param id объект Transaction для удаления. Не может быть null.
+//     * @throws IllegalArgumentException если transaction равен null.
+//     */
+//    public void removeTransaction(long id) {
+//        transactions.remove(id);
+//    }
 
     /**
      * Возвращает текущий статус пользователя.

@@ -13,12 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserTest {
 
     private User user;
-    private Transaction transaction;
 
     @BeforeEach
     void setUp() {
         user = new User("test@example.com", "password123", "John Doe", "user");
-        transaction = new Transaction(1L, 10000.0, "Job", LocalDate.parse("2023-10-01"), "Salary", true);
     }
 
     @Test
@@ -28,7 +26,7 @@ class UserTest {
         assertEquals("John Doe", user.getName());
         assertEquals("user", user.getRole());
         assertEquals("active", user.getStatus());
-        assertTrue(user.getTransactions().isEmpty());
+
     }
 
     @Test
@@ -85,43 +83,4 @@ class UserTest {
         assertThrows(IllegalArgumentException.class, () -> user.setStatus(""));
     }
 
-    @Test
-    void testAddTransaction() {
-        user.addTransaction(transaction);
-        assertTrue(user.getTransactions().containsKey(transaction.getId()));
-        assertEquals(transaction, user.getTransaction(transaction.getId()));
-    }
-
-    @Test
-    void testAddTransactionThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> user.addTransaction(null));
-    }
-
-    @Test
-    void testRemoveTransaction() {
-        user.addTransaction(transaction);
-        user.removeTransaction(transaction.getId());
-        assertFalse(user.getTransactions().containsKey(transaction.getId()));
-    }
-
-    @Test
-    void testGetTransactions() {
-        user.addTransaction(transaction);
-        Map<Long, Transaction> transactions = user.getTransactions();
-        assertNotNull(transactions);
-        assertEquals(1, transactions.size());
-        assertTrue(transactions.containsValue(transaction));
-    }
-
-    @Test
-    void testGetTransaction() {
-        user.addTransaction(transaction);
-        Transaction retrievedTransaction = user.getTransaction(transaction.getId());
-        assertEquals(transaction, retrievedTransaction);
-    }
-
-    @Test
-    void testGetTransactionReturnsNull() {
-        assertNull(user.getTransaction(999L)); // Несуществующий ID
-    }
 }

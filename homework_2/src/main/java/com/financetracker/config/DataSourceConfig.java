@@ -14,4 +14,13 @@ public class DataSourceConfig {
         config.setDriverClassName("org.postgresql.Driver");
         return new HikariDataSource(config);
     }
+
+    public static DataSource getTestDataSource(String url, String username, String password) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setDriverClassName("org.postgresql.Driver");
+        return new HikariDataSource(config);
+    }
 }

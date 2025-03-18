@@ -196,7 +196,7 @@ public class FinanceTracker {
      * @return true, если транзакция существует; false, если нет.
      */
     public boolean isTransactionThere(long transactionId) {
-        return transactionService.isTransactionThere(transactionId);
+        return transactionService.isTransactionThere(getId(),transactionId);
     }
 
     /**
@@ -206,7 +206,7 @@ public class FinanceTracker {
      * @param amount        новая сумма транзакции.
      */
     public void setTransactionAmount(long transactionId, double amount) {
-        transactionService.setTransactionAmount(transactionId, amount);
+        transactionService.setTransactionAmount(getId(),transactionId, amount);
     }
 
     /**
@@ -216,7 +216,7 @@ public class FinanceTracker {
      * @param category      новая категория транзакции.
      */
     public void setTransactionCategory(long transactionId, String category) {
-        transactionService.setTransactionCategory(transactionId, category);
+        transactionService.setTransactionCategory(getId(),transactionId, category);
     }
 
     /**
@@ -226,7 +226,7 @@ public class FinanceTracker {
      * @param description   новое описание транзакции.
      */
     public void setTransactionDescription(long transactionId, String description) {
-        transactionService.setTransactionDescription(transactionId, description);
+        transactionService.setTransactionDescription(getId(),transactionId, description);
     }
 
     /**
