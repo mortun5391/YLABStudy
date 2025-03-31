@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">TransactionService.java</span></div><h1>TransactionService.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
+
+import com.financetracker.model.Transaction;
+import com.financetracker.repository.UserRepository;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Сервис для управления транзакциями пользователей.
+ * Предоставляет методы для добавления, удаления, изменения и получения информации о транзакциях.
+ */
+public class TransactionService {
+    private UserRepository userRepository;
+
+    /**
+     * Конструктор класса TransactionService.
+     *
+     * @param userRepository репозиторий пользователей, используемый для доступа к данным транзакций.
+     */
+<span class="fc" id="L23">    public TransactionService(UserRepository userRepository) {</span>
+<span class="fc" id="L24">        this.userRepository = userRepository;</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Добавляет транзакцию для указанного пользователя.
+     *
+     * @param id          уникальный идентификатор пользователя.
+     * @param amount      сумма транзакции.
+     * @param category    категория транзакции.
+     * @param date        дата транзакции.
+     * @param description описание транзакции.
+     * @param isIncome    true, если транзакция является доходом; false, если расходом.
+     */
+    public void addTransaction(String id, double amount, String category, LocalDate date,
+                               String description, boolean isIncome) {
+<span class="fc" id="L39">        userRepository.addTransaction(id, new Transaction(amount, category, date, description, isIncome));</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Возвращает все транзакции пользователя.
+     *
+     * @param userId уникальный идентификатор пользователя.
+     * @return Map&lt;String, Transaction&gt;, где ключ — идентификатор транзакции, а значение — объект транзакции.
+     */
+    public Map&lt;String, Transaction&gt; getTransactions(String userId) {
+<span class="fc" id="L49">        return userRepository.getTransactions(userId);</span>
+    }
+
+    /**
+     * Возвращает транзакцию по её идентификатору.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @return объект транзакции или null, если транзакция не найдена.
+     */
+    public Transaction getTransaction(String userId, String transactionId) {
+<span class="fc" id="L60">        return userRepository.getTransaction(userId, transactionId);</span>
+    }
+
+    /**
+     * Удаляет транзакцию по её идентификатору.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @return true, если транзакция успешно удалена; false, если транзакция не найдена.
+     */
+    public boolean removeTransaction(String userId, String transactionId) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (userRepository.getTransaction(userId, transactionId) == null) {</span>
+<span class="fc" id="L72">            return false;</span>
+        }
+<span class="fc" id="L74">        userRepository.removeTransaction(userId, transactionId);</span>
+<span class="fc" id="L75">        return true;</span>
+    }
+
+    /**
+     * Проверяет, существует ли транзакция с указанным идентификатором.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @return true, если транзакция существует; false, если нет.
+     */
+    public boolean isTransactionThere(String userId, String transactionId) {
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        return userRepository.getTransaction(userId, transactionId) != null;</span>
+    }
+
+    /**
+     * Устанавливает новую сумму для транзакции.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @param amount        новая сумма транзакции.
+     */
+    public void setTransactionAmount(String userId, String transactionId, double amount) {
+<span class="fc" id="L97">        userRepository.getTransaction(userId, transactionId).setAmount(amount);</span>
+<span class="fc" id="L98">    }</span>
+
+    /**
+     * Устанавливает новую категорию для транзакции.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @param category      новая категория транзакции.
+     */
+    public void setTransactionCategory(String userId, String transactionId, String category) {
+<span class="fc" id="L108">        userRepository.getTransaction(userId, transactionId).setCategory(category);</span>
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * Устанавливает новое описание для транзакции.
+     *
+     * @param userId        уникальный идентификатор пользователя.
+     * @param transactionId уникальный идентификатор транзакции.
+     * @param description   новое описание транзакции.
+     */
+    public void setTransactionDescription(String userId, String transactionId, String description) {
+<span class="fc" id="L119">        userRepository.getTransaction(userId, transactionId).setDescription(description);</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Возвращает текущий баланс пользователя.
+     * Баланс рассчитывается как сумма всех доходов за вычетом всех расходов.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return текущий баланс пользователя.
+     */
+    public double getBalance(String id) {
+<span class="fc" id="L130">        return userRepository.getTransactions(id).values().stream()</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">                .mapToDouble(transaction -&gt; transaction.isIncome() ? transaction.getAmount() : -transaction.getAmount())</span>
+<span class="fc" id="L132">                .sum();</span>
+    }
+
+    /**
+     * Возвращает сумму доходов пользователя за указанный период.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param start начальная дата периода.
+     * @param end   конечная дата периода.
+     * @return сумма доходов за период.
+     */
+    public double getIncomeOfPeriod(String id, LocalDate start, LocalDate end) {
+<span class="fc" id="L144">        return userRepository.getTransactions(id).values().stream()</span>
+<span class="pc bpc" id="L145" title="1 of 4 branches missed.">                .mapToDouble(transaction -&gt; transaction.isIncome() &amp;&amp; transaction.getDate().isAfter(start.minusDays(1))</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">                        &amp;&amp; transaction.getDate().isBefore(end.plusDays(1)) ? transaction.getAmount() : 0)</span>
+<span class="fc" id="L147">                .sum();</span>
+    }
+
+    /**
+     * Возвращает сумму расходов пользователя за указанный период.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param start начальная дата периода.
+     * @param end   конечная дата периода.
+     * @return сумма расходов за период.
+     */
+    public double getExpensesOfPeriod(String id, LocalDate start, LocalDate end) {
+<span class="fc" id="L159">        return userRepository.getTransactions(id).values().stream()</span>
+<span class="pc bpc" id="L160" title="1 of 4 branches missed.">                .mapToDouble(transaction -&gt; !transaction.isIncome() &amp;&amp; transaction.getDate().isAfter(start.minusDays(1))</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                        &amp;&amp; transaction.getDate().isBefore(end.plusDays(1)) ? transaction.getAmount() : 0)</span>
+<span class="fc" id="L162">                .sum();</span>
+    }
+
+    /**
+     * Возвращает расходы пользователя по категориям за указанный период.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param start начальная дата периода.
+     * @param end   конечная дата периода.
+     * @return Map&lt;String, Double&gt;, где ключ — категория, а значение — сумма расходов по этой категории.
+     */
+    public Map&lt;String, Double&gt; getExpensesByCategory(String id, LocalDate start, LocalDate end) {
+<span class="fc" id="L174">        List&lt;Transaction&gt; transactions = userRepository.getTransactions(id).values().stream().toList();</span>
+
+<span class="fc" id="L176">        Map&lt;String, Double&gt; expensesByCategory = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L178">        transactions.stream()</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">                .filter(transaction -&gt; !transaction.isIncome())</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">                .filter(transaction -&gt; !transaction.getDate().isBefore(start) &amp;&amp;</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">                        !transaction.getDate().isAfter(end)) // Только расходы</span>
+<span class="fc" id="L182">                .forEach(transaction -&gt; {</span>
+<span class="fc" id="L183">                    expensesByCategory.merge(transaction.getCategory(), transaction.getAmount(), Double::sum);</span>
+<span class="fc" id="L184">                });</span>
+
+<span class="fc" id="L186">        return expensesByCategory;</span>
+    }
+
+    /**
+     * Рассчитывает сумму расходов пользователя за указанный месяц.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param month месяц в формате &quot;yyyy-MM&quot;.
+     * @return сумма расходов за месяц.
+     */
+    public double calculateMonthlyExpress(String id, String month) {
+<span class="fc" id="L197">        return userRepository.getTransactions(id).values().stream()</span>
+<span class="pc bpc" id="L198" title="1 of 4 branches missed.">                .mapToDouble(transaction -&gt; !transaction.isIncome() &amp;&amp; transaction.getDate().toString().substring(0, 7).equals(month) ?</span>
+<span class="fc" id="L199">                        transaction.getAmount() : 0)</span>
+<span class="fc" id="L200">                .sum();</span>
+    }
+
+    /**
+     * Генерирует финансовый отчёт для пользователя за указанный период.
+     * Отчёт включает текущий баланс, доходы, расходы и расходы по категориям.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param start начальная дата периода.
+     * @param end   конечная дата периода.
+     * @return строка, содержащая финансовый отчёт.
+     */
+    public String generateReport(String id, LocalDate start, LocalDate end) {
+<span class="fc" id="L213">        double balance = getBalance(id);</span>
+<span class="fc" id="L214">        double income = getIncomeOfPeriod(id, start, end);</span>
+<span class="fc" id="L215">        double expense = getExpensesOfPeriod(id, start, end);</span>
+<span class="fc" id="L216">        Map&lt;String, Double&gt; expensesByCategory = getExpensesByCategory(id, start, end);</span>
+
+<span class="fc" id="L218">        StringBuilder report = new StringBuilder();</span>
+<span class="fc" id="L219">        report.append(&quot;=== Финансовый отчёт ===\n&quot;);</span>
+<span class="fc" id="L220">        report.append(String.format(&quot;Текущий баланс: %.2f \n&quot;, balance));</span>
+<span class="fc" id="L221">        report.append(String.format(&quot;Доход за период: %.2f \n&quot;, income));</span>
+<span class="fc" id="L222">        report.append(String.format(&quot;Расход за период: %.2f \n&quot;, expense));</span>
+<span class="fc" id="L223">        report.append(&quot;Расходы по категориям:\n&quot;);</span>
+<span class="fc" id="L224">        expensesByCategory.forEach((category, amount) -&gt;</span>
+<span class="fc" id="L225">                report.append(String.format(&quot;- %s: %.2f \n&quot;, category, amount)));</span>
+<span class="fc" id="L226">        return report.toString();</span>
+    }
+
+    /**
+     * Возвращает список всех транзакций пользователя без фильтрации.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionNoFilter(String id) {
+<span class="fc" id="L236">        return formatTransactions(userRepository.getTransactions(id).values().stream().toList(), &quot;Список транзакций:&quot;);</span>
+    }
+
+    /**
+     * Возвращает список транзакций пользователя, отфильтрованных по дате.
+     *
+     * @param id         уникальный идентификатор пользователя.
+     * @param dateFilter дата для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsDateFilter(String id, LocalDate dateFilter) {
+<span class="fc" id="L247">        List&lt;Transaction&gt; filteredTransactions = userRepository.getTransactions(id).values().stream()</span>
+<span class="fc" id="L248">                .filter(transaction -&gt; transaction.getDate().isEqual(dateFilter))</span>
+<span class="fc" id="L249">                .toList();</span>
+<span class="fc" id="L250">        return formatTransactions(filteredTransactions, &quot;Список транзакций по дате &quot; + dateFilter + &quot;:&quot;);</span>
+    }
+
+    /**
+     * Возвращает список транзакций пользователя, отфильтрованных по категории.
+     *
+     * @param id             уникальный идентификатор пользователя.
+     * @param categoryFilter категория для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsCategoryFilter(String id, String categoryFilter) {
+<span class="fc" id="L261">        List&lt;Transaction&gt; filteredTransactions = userRepository.getTransactions(id).values().stream()</span>
+<span class="fc" id="L262">                .filter(transaction -&gt; transaction.getCategory().equals(categoryFilter))</span>
+<span class="fc" id="L263">                .toList();</span>
+<span class="fc" id="L264">        return formatTransactions(filteredTransactions, &quot;Список транзакций по категории &quot; + categoryFilter + &quot;:&quot;);</span>
+    }
+
+    /**
+     * Возвращает список транзакций пользователя, отфильтрованных по типу (доход/расход).
+     *
+     * @param id             уникальный идентификатор пользователя.
+     * @param isIncomeFilter true для доходов, false для расходов.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsIsIncomeFilter(String id, boolean isIncomeFilter) {
+<span class="fc" id="L275">        List&lt;Transaction&gt; filteredTransactions = userRepository.getTransactions(id).values().stream()</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">                .filter(transaction -&gt; transaction.isIncome() == isIncomeFilter)</span>
+<span class="fc" id="L277">                .toList();</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        String type = isIncomeFilter ? &quot;Доходы&quot; : &quot;Расходы&quot;;</span>
+<span class="fc" id="L279">        return formatTransactions(filteredTransactions, &quot;Список транзакций (&quot; + type + &quot;):&quot;);</span>
+    }
+
+    /**
+     * Форматирует список транзакций в строку.
+     *
+     * @param transactions список транзакций.
+     * @param header       заголовок для списка транзакций.
+     * @return строка, содержащая отформатированный список транзакций.
+     */
+    private String formatTransactions(List&lt;Transaction&gt; transactions, String header) {
+<span class="fc" id="L290">        StringBuilder transactionList = new StringBuilder();</span>
+
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        if (transactions.isEmpty()) {</span>
+<span class="fc" id="L293">            transactionList.append(&quot;Список транзакций пуст\n&quot;);</span>
+        } else {
+<span class="fc" id="L295">            transactionList.append(header + &quot;\n&quot;);</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">            for (Transaction transaction : transactions) {</span>
+<span class="fc" id="L297">                transactionList.append(&quot;ID: &quot; + transaction.getId() +</span>
+<span class="fc" id="L298">                        &quot;, Сумма: &quot; + transaction.getAmount() +</span>
+<span class="fc" id="L299">                        &quot;, Категория: &quot; + transaction.getCategory() +</span>
+<span class="fc" id="L300">                        &quot;, Дата: &quot; + transaction.getDate().toString() +</span>
+<span class="fc" id="L301">                        &quot;, Описание: &quot; + transaction.getDescription() +</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">                        &quot;, Тип: &quot; + (transaction.isIncome() ? &quot;Доход&quot; : &quot;Расход&quot;) + &quot;\n&quot;);</span>
+<span class="fc" id="L303">            }</span>
+        }
+
+<span class="fc" id="L306">        return transactionList.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

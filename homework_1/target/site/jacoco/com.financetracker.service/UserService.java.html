@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
+
+import com.financetracker.model.User;
+import com.financetracker.repository.UserRepository;
+
+/**
+ * Сервис для управления пользователями.
+ * Предоставляет методы для регистрации, входа, удаления, блокировки пользователей,
+ * а также для изменения их данных и просмотра профиля.
+ */
+public class UserService {
+    private UserRepository userRepository;
+
+    /**
+     * Конструктор для создания экземпляра UserService.
+     *
+     * @param userRepository репозиторий пользователей, который будет использоваться сервисом.
+     */
+<span class="fc" id="L19">    public UserService(UserRepository userRepository) {</span>
+<span class="fc" id="L20">        this.userRepository = userRepository;</span>
+<span class="fc" id="L21">    }</span>
+
+    /**
+     * Регистрирует нового пользователя в системе.
+     *
+     * @param email    электронная почта пользователя. Не может быть null или пустой строкой.
+     * @param password пароль пользователя. Не может быть null или пустой строкой.
+     * @param name     имя пользователя. Не может быть null или пустой строкой.
+     * @param role     роль пользователя. Не может быть null или пустой строкой.
+     * @return true, если регистрация прошла успешно; false, если пользователь с таким email уже существует.
+     * @throws IllegalArgumentException если любой из параметров равен null или пустой строке.
+     */
+    public boolean registerUser(String email, String password, String name, String role) {
+<span class="pc bpc" id="L34" title="3 of 6 branches missed.">        if (email == null || email.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L35" title="2 of 4 branches missed.">                password == null || password.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L36" title="2 of 4 branches missed.">                name == null || name.trim().isEmpty() ||</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">                role == null || role.trim().isEmpty()) {</span>
+<span class="nc" id="L38">            throw new IllegalArgumentException(&quot;Email, password, name, and role cannot be null or empty&quot;);</span>
+        }
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (userRepository.findUserByEmail(email) != null) {</span>
+<span class="nc" id="L41">            return false;</span>
+        }
+<span class="fc" id="L43">        userRepository.saveUser(new User(email, password, name, role));</span>
+<span class="fc" id="L44">        return true;</span>
+    }
+
+    /**
+     * Выполняет вход пользователя в систему.
+     *
+     * @param email    электронная почта пользователя. Не может быть null или пустой строкой.
+     * @param password пароль пользователя. Не может быть null или пустой строкой.
+     * @return true, если вход выполнен успешно; false, если пользователь не найден или пароль неверен.
+     * @throws IllegalArgumentException если email или password равен null или пустой строке.
+     * @throws IllegalStateException    если аккаунт пользователя заблокирован.
+     */
+    public boolean loginUser(String email, String password) {
+<span class="pc bpc" id="L57" title="4 of 8 branches missed.">        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {</span>
+<span class="nc" id="L58">            throw new IllegalArgumentException(&quot;Email and password cannot be null or empty&quot;);</span>
+        }
+<span class="fc" id="L60">        User user = userRepository.findUserByEmail(email);</span>
+<span class="pc bpc" id="L61" title="2 of 4 branches missed.">        if (user == null || !user.getPassword().equals(password)) {</span>
+<span class="nc" id="L62">            return false;</span>
+        }
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (user.getStatus().equals(&quot;banned&quot;)) {</span>
+<span class="nc" id="L65">            throw new IllegalStateException(&quot;Ваш аккаунт заблокирован!&quot;);</span>
+        }
+<span class="fc" id="L67">        return true;</span>
+    }
+
+    /**
+     * Удаляет пользователя из системы по его идентификатору.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @throws IllegalArgumentException если пользователь с указанным id не найден.
+     */
+    public void deleteUser(String id) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (userRepository.findUserById(id) == null) {</span>
+<span class="nc" id="L78">            throw new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;);</span>
+        }
+<span class="fc" id="L80">        userRepository.deleteUser(id);</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Блокирует пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @throws IllegalArgumentException если пользователь с указанным id не найден.
+     */
+    public void banUser(String id) {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (userRepository.findUserById(id) == null) {</span>
+<span class="nc" id="L91">            throw new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;);</span>
+        }
+<span class="nc" id="L93">        userRepository.findUserById(id).setStatus(&quot;banned&quot;);</span>
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * Проверяет, совпадает ли пароль пользователя с указанным паролем.
+     *
+     * @param id       уникальный идентификатор пользователя.
+     * @param password пароль для проверки.
+     * @return true, если пароль совпадает; false, если нет.
+     * @throws IllegalArgumentException если пользователь с указанным id не найден.
+     */
+    public boolean isPasswordEqual(String id, String password) {
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (userRepository.findUserById(id) == null) {</span>
+<span class="nc" id="L106">            throw new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;);</span>
+        }
+<span class="fc" id="L108">        return userRepository.findUserById(id).getPassword().equals(password);</span>
+    }
+
+    /**
+     * Проверяет, имеет ли пользователь доступ администратора.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если пользователь имеет роль администратора; false, если нет.
+     * @throws IllegalArgumentException если пользователь с указанным id не найден.
+     */
+    public boolean hasAccess(String id) {
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (userRepository.findUserById(id) == null) {</span>
+<span class="nc" id="L120">            throw new IllegalArgumentException(&quot;User with id &quot; + id + &quot; not found&quot;);</span>
+        }
+<span class="fc" id="L122">        return userRepository.findUserById(id).getRole().equals(&quot;admin&quot;);</span>
+    }
+
+    /**
+     * Проверяет, существует ли пользователь с указанным идентификатором.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если пользователь существует; false, если нет.
+     */
+    public boolean isUserExist(String id) {
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        return userRepository.findUserById(id) != null;</span>
+    }
+
+    /**
+     * Изменяет email пользователя.
+     *
+     * @param id    уникальный идентификатор пользователя.
+     * @param email новый email. Не может быть null или пустой строкой.
+     * @throws IllegalArgumentException если email равен null или пустой строке.
+     * @throws IllegalStateException    если пользователь не найден.
+     */
+    public void changeEmail(String id, String email) {
+<span class="fc" id="L144">        User user = userRepository.findUserById(id);</span>
+<span class="fc" id="L145">        userRepository.deleteUser(id);</span>
+<span class="fc" id="L146">        user.setEmail(email);</span>
+<span class="fc" id="L147">        userRepository.saveUser(user);</span>
+<span class="fc" id="L148">    }</span>
+
+    /**
+     * Изменяет пароль пользователя.
+     *
+     * @param id       уникальный идентификатор пользователя.
+     * @param password новый пароль. Не может быть null или пустой строкой.
+     * @throws IllegalArgumentException если пароль равен null или пустой строке.
+     * @throws IllegalStateException    если пользователь не найден.
+     */
+    public void changePassword(String id, String password) {
+<span class="fc" id="L159">        userRepository.findUserById(id).setPassword(password);</span>
+<span class="fc" id="L160">    }</span>
+
+    /**
+     * Изменяет имя пользователя.
+     *
+     * @param id   уникальный идентификатор пользователя.
+     * @param name новое имя. Не может быть null или пустой строкой.
+     * @throws IllegalArgumentException если имя равно null или пустой строке.
+     * @throws IllegalStateException    если пользователь не найден.
+     */
+    public void changeName(String id, String name) {
+<span class="fc" id="L171">        userRepository.findUserById(id).setName(name);</span>
+<span class="fc" id="L172">    }</span>
+
+    /**
+     * Отображает профиль пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка с информацией о профиле пользователя.
+     * @throws IllegalStateException если пользователь не найден.
+     */
+    public String viewProfile(String id) {
+<span class="fc" id="L182">        User user = userRepository.findUserById(id);</span>
+<span class="fc" id="L183">        return (</span>
+<span class="fc" id="L184">                &quot;\nСтатус: &quot; + user.getRole() +</span>
+<span class="fc" id="L185">                        &quot;\nИмя: &quot; + user.getName() +</span>
+<span class="fc" id="L186">                        &quot;\nEmail: &quot; + user.getEmail() +</span>
+                        &quot;\nПароль: ******** &quot;);
+    }
+
+    /**
+     * Отображает список всех пользователей в системе.
+     * Доступно только для администраторов.
+     *
+     * @param id уникальный идентификатор пользователя, запрашивающего список.
+     * @throws IllegalStateException если пользователь не является администратором.
+     */
+    public void viewUsersList(String id) {
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (!userRepository.findUserById(id).getRole().equals(&quot;admin&quot;)) {</span>
+<span class="nc" id="L199">            System.out.println(&quot;Только администратор может просматривать список пользователей!&quot;);</span>
+<span class="nc" id="L200">            return;</span>
+        }
+<span class="fc" id="L202">        System.out.println(&quot;Список пользователей: &quot;);</span>
+<span class="fc" id="L203">        System.out.printf(&quot;%-10s %-20s %-15s %-10s %-10s%n&quot;, &quot;ID&quot;, &quot;Email&quot;, &quot;Имя&quot;, &quot;Роль&quot;, &quot;Статус&quot;);</span>
+
+        // Данные пользователей
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        for (User user : userRepository.getUsers()) {</span>
+<span class="fc" id="L207">            System.out.printf(</span>
+                    &quot;%-10s %-20s %-15s %-10s %-10s%n&quot;,
+<span class="fc" id="L209">                    user.getId(),</span>
+<span class="fc" id="L210">                    user.getEmail(),</span>
+<span class="fc" id="L211">                    user.getName(),</span>
+<span class="fc" id="L212">                    user.getRole(),</span>
+<span class="fc" id="L213">                    user.getStatus()</span>
+            );
+<span class="fc" id="L215">        }</span>
+<span class="fc" id="L216">    }</span>
+
+    /**
+     * Возвращает пользователя по его email.
+     *
+     * @param email электронная почта пользователя.
+     * @return объект User, если пользователь найден; null, если пользователь не найден.
+     */
+    public User getUserByEmail(String email) {
+<span class="fc" id="L225">        return userRepository.findUserByEmail(email);</span>
+    }
+
+    /**
+     * Возвращает пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return объект User, если пользователь найден; null, если пользователь не найден.
+     */
+    public User getUserById(String id) {
+<span class="nc" id="L235">        return userRepository.findUserById(id);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

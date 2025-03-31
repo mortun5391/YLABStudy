@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FinanceTracker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">FinanceTracker.java</span></div><h1>FinanceTracker.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
+
+import com.financetracker.model.BudgetRecord;
+import com.financetracker.model.Goal;
+import com.financetracker.model.Transaction;
+import com.financetracker.model.User;
+
+import java.time.LocalDate;
+import java.util.*;
+
+/**
+ * Класс FinanceTracker представляет собой систему управления финансами,
+ * которая позволяет регистрировать пользователей, управлять их транзакциями,
+ * бюджетами и финансовыми целями, а также отправлять уведомления.
+ * &lt;p&gt;
+ * Основные функции:
+ * - Регистрация и аутентификация пользователей.
+ * - Управление транзакциями, бюджетами и целями.
+ * - Отправка уведомлений через сервис NotificationService.
+ */
+public class FinanceTracker {
+    /**
+     * Текущий аутентифицированный пользователь.
+     * Если пользователь не аутентифицирован, значение равно null.
+     */
+    private User currentUser;
+
+    /**
+     * Сервис для отправки уведомлений пользователям.
+     */
+    private NotificationService notificationService;
+
+    private UserService userService;
+    private TransactionService transactionService;
+    private BudgetService budgetService;
+    private GoalService goalService;
+
+    /**
+     * Результат попытки входа пользователя.
+     */
+<span class="fc" id="L41">    public enum LoginResult {</span>
+<span class="fc" id="L42">        SUCCESS,</span>
+<span class="fc" id="L43">        INVALID_CREDENTIALS,</span>
+<span class="fc" id="L44">        USER_BANNED</span>
+    }
+
+    /**
+     * Конструктор класса FinanceTracker.
+     * Инициализирует необходимые структуры данных и создает администратора по умолчанию.
+     *
+     * @param userService сервис для работы с пользователями.
+     * @param transactionService сервис для работы с транзакциями.
+     * @param budgetService сервис для работы с бюджетами.
+     * @param goalService сервис для работы с финансовыми целями.
+     * @param notificationService сервис уведомлений, который будет использоваться для отправки уведомлений.
+     * @throws IllegalArgumentException если notificationService равен null.
+     */
+    public FinanceTracker(UserService userService, TransactionService transactionService, BudgetService budgetService,
+<span class="fc" id="L59">                          GoalService goalService, NotificationService notificationService) {</span>
+<span class="fc" id="L60">        this.userService = userService;</span>
+<span class="fc" id="L61">        this.transactionService = transactionService;</span>
+<span class="fc" id="L62">        this.budgetService = budgetService;</span>
+<span class="fc" id="L63">        this.goalService = goalService;</span>
+<span class="fc" id="L64">        this.notificationService = notificationService;</span>
+<span class="fc" id="L65">        userService.registerUser(&quot;admin@example.com&quot;, &quot;admin123&quot;, &quot;Admin&quot;, &quot;admin&quot;);</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Регистрирует нового пользователя в системе.
+     *
+     * @param email электронная почта пользователя. Не может быть null или пустой строкой.
+     * @param password пароль пользователя. Не может быть null или пустой строкой.
+     * @param name имя пользователя. Не может быть null или пустой строкой.
+     * @param role статус пользователя. Не может быть null или пустой строкой.
+     * @return true, если регистрация прошла успешно; false, если пользователь с таким email уже существует.
+     * @throws IllegalArgumentException если любой из параметров равен null или пустой строке.
+     */
+    public boolean registerUser(String email, String password, String name, String role) {
+<span class="fc" id="L79">        return userService.registerUser(email, password, name, role);</span>
+    }
+
+    /**
+     * Выполняет вход пользователя в систему.
+     *
+     * @param email электронная почта пользователя. Не может быть null или пустой строкой.
+     * @param password пароль пользователя. Не может быть null или пустой строкой.
+     * @return результат попытки входа (SUCCESS, INVALID_CREDENTIALS, USER_BANNED).
+     * @throws IllegalArgumentException если email или password равен null или пустой строке.
+     */
+    public LoginResult loginUser(String email, String password) {
+        try {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            if (userService.loginUser(email, password)) {</span>
+<span class="fc" id="L93">                currentUser = userService.getUserByEmail(email);</span>
+<span class="fc" id="L94">                return LoginResult.SUCCESS;</span>
+            }
+<span class="fc" id="L96">            return LoginResult.INVALID_CREDENTIALS;</span>
+<span class="fc" id="L97">        } catch (IllegalStateException e) {</span>
+<span class="fc" id="L98">            return LoginResult.USER_BANNED;</span>
+        }
+    }
+
+    /**
+     * Выход текущего пользователя из системы.
+     * Устанавливает значение currentUser в null.
+     */
+    public void logoutUser() {
+<span class="fc" id="L107">        currentUser = null;</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Удаляет пользователя из системы по его идентификатору.
+     * Если удаляемый пользователь является текущим, выполняется выход из системы.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @throws IllegalArgumentException если пользователь с указанным id не найден.
+     */
+    public void deleteUser(String id) {
+<span class="fc" id="L118">        userService.deleteUser(id);</span>
+<span class="pc bpc" id="L119" title="2 of 4 branches missed.">        if (currentUser != null &amp;&amp; currentUser.getId().equals(id)) {</span>
+<span class="fc" id="L120">            logoutUser();</span>
+        }
+<span class="fc" id="L122">    }</span>
+
+    /**
+     * Блокирует пользователя по его идентификатору.
+     *
+     * @param id уникальный идентификатор пользователя.
+     */
+    public void banUser(String id) {
+<span class="fc" id="L130">        userService.banUser(id);</span>
+<span class="fc" id="L131">    }</span>
+
+    /**
+     * Возвращает идентификатор текущего пользователя.
+     *
+     * @return идентификатор текущего пользователя.
+     */
+    public String getId() {
+<span class="fc" id="L139">        return currentUser.getId();</span>
+    }
+
+    /**
+     * Проверяет, имеет ли пользователь доступ к определенным операциям.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если пользователь имеет доступ; false, если нет.
+     */
+    public boolean hasAccess(String id) {
+<span class="fc" id="L149">        return userService.hasAccess(id);</span>
+    }
+
+    /**
+     * Проверяет, совпадает ли пароль пользователя с указанным паролем.
+     *
+     * @param password пароль для проверки.
+     * @return true, если пароль совпадает; false, если нет.
+     */
+    public boolean isPasswordEqual(String password) {
+<span class="fc" id="L159">        return userService.isPasswordEqual(currentUser.getId(), password);</span>
+    }
+
+    /**
+     * Проверяет, существует ли пользователь с указанным идентификатором.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если пользователь существует; false, если нет.
+     */
+    public boolean isUserExist(String id) {
+<span class="fc" id="L169">        return userService.isUserExist(id);</span>
+    }
+
+    /**
+     * Добавляет транзакцию для текущего пользователя.
+     * Если транзакция является доходом и у пользователя установлена финансовая цель,
+     * сумма транзакции добавляется к цели.
+     *
+     * @param amount сумма транзакции.
+     * @param category категория транзакции.
+     * @param date дата транзакции.
+     * @param description описание транзакции.
+     * @param isIncome true, если транзакция является доходом; false, если расходом.
+     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     */
+    public void addTransaction(double amount, String category, LocalDate date,
+                               String description, boolean isIncome) {
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L187">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
+        }
+<span class="fc" id="L189">        String id = getId();</span>
+
+<span class="fc" id="L191">        transactionService.addTransaction(id, amount, category, date, description, isIncome);</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        if (budgetService.isBudgetSet(id)) {</span>
+<span class="pc bpc" id="L193" title="2 of 4 branches missed.">            if (!isIncome &amp;&amp; date.toString().substring(0, 7).equals(budgetService.getMonth(id))) {</span>
+<span class="fc" id="L194">                budgetService.addMonthlyExpress(id, amount);</span>
+            }
+        }
+<span class="pc bpc" id="L197" title="1 of 4 branches missed.">        if (goalService.isGoalSet(id) &amp;&amp; isIncome) {</span>
+<span class="nc" id="L198">            goalService.addAmount(id, amount);</span>
+        }
+<span class="fc" id="L200">    }</span>
+
+    /**
+     * Удаляет транзакцию у текущего пользователя по её идентификатору.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @return true, если транзакция успешно удалена; false, если транзакция не найдена.
+     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     */
+    public boolean removeTransaction(String id) {
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L211">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
+        }
+<span class="fc" id="L213">        return transactionService.removeTransaction(currentUser.getId(), id);</span>
+    }
+
+    /**
+     * Проверяет, существует ли транзакция с указанным идентификатором у текущего пользователя.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @return true, если транзакция существует; false, если нет.
+     */
+    public boolean isTransactionThere(String id) {
+<span class="fc" id="L223">        return transactionService.isTransactionThere(currentUser.getId(), id);</span>
+    }
+
+    /**
+     * Устанавливает новую сумму для транзакции.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @param amount новая сумма транзакции.
+     */
+    public void setTransactionAmount(String id, double amount) {
+<span class="fc" id="L233">        transactionService.setTransactionAmount(currentUser.getId(), id, amount);</span>
+<span class="fc" id="L234">    }</span>
+
+    /**
+     * Устанавливает новую категорию для транзакции.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @param category новая категория транзакции.
+     */
+    public void setTransactionCategory(String id, String category) {
+<span class="fc" id="L243">        transactionService.setTransactionCategory(currentUser.getId(), id, category);</span>
+<span class="fc" id="L244">    }</span>
+
+    /**
+     * Устанавливает новое описание для транзакции.
+     *
+     * @param id уникальный идентификатор транзакции.
+     * @param description новое описание транзакции.
+     */
+    public void setTransactionDescription(String id, String description) {
+<span class="fc" id="L253">        transactionService.setTransactionDescription(currentUser.getId(), id, description);</span>
+<span class="fc" id="L254">    }</span>
+
+    /**
+     * Возвращает список всех транзакций текущего пользователя без фильтрации.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsNoFilter(String id) {
+<span class="fc" id="L263">        return transactionService.viewTransactionNoFilter(currentUser.getId());</span>
+    }
+
+    /**
+     * Возвращает список транзакций текущего пользователя, отфильтрованных по дате.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param dateFilter дата для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsDateFilter(String id, LocalDate dateFilter) {
+<span class="fc" id="L274">        return transactionService.viewTransactionsDateFilter(id, dateFilter);</span>
+    }
+
+    /**
+     * Возвращает список транзакций текущего пользователя, отфильтрованных по категории.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param categoryFilter категория для фильтрации.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsCategoryFilter(String id, String categoryFilter) {
+<span class="fc" id="L285">        return transactionService.viewTransactionsCategoryFilter(id, categoryFilter);</span>
+    }
+
+    /**
+     * Возвращает список транзакций текущего пользователя, отфильтрованных по типу (доход/расход).
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param isIncomeFilter true для доходов, false для расходов.
+     * @return строка, содержащая список транзакций.
+     */
+    public String viewTransactionsIsIncomeFilter(String id, boolean isIncomeFilter) {
+<span class="fc" id="L296">        return transactionService.viewTransactionsIsIncomeFilter(id, isIncomeFilter);</span>
+    }
+
+    /**
+     * Изменяет email текущего пользователя.
+     *
+     * @param email новый email. Не может быть null или пустой строкой.
+     * @throws IllegalArgumentException если email равен null или пустой строке.
+     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     */
+    public void changeEmail(String email) {
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L308">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
+        }
+<span class="fc" id="L310">        userService.changeEmail(currentUser.getId(), email);</span>
+<span class="fc" id="L311">    }</span>
+
+    /**
+     * Изменяет пароль текущего пользователя.
+     *
+     * @param password новый пароль. Не может быть null или пустой строкой.
+     * @throws IllegalArgumentException если пароль равен null или пустой строке.
+     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     */
+    public void changePassword(String password) {
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L322">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
+        }
+<span class="fc" id="L324">        userService.changePassword(currentUser.getId(), password);</span>
+<span class="fc" id="L325">    }</span>
+
+    /**
+     * Изменяет имя текущего пользователя.
+     *
+     * @param name новое имя. Не может быть null или пустой строкой.
+     * @throws IllegalArgumentException если имя равно null или пустой строке.
+     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     */
+    public void changeName(String name) {
+<span class="pc bpc" id="L335" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L336">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
+        }
+<span class="fc" id="L338">        userService.changeName(currentUser.getId(), name);</span>
+<span class="fc" id="L339">    }</span>
+
+    /**
+     * Отображает профиль текущего пользователя.
+     * Выводит статус, имя, email и скрытый пароль.
+     *
+     * @return строка, содержащая информацию о профиле.
+     * @throws IllegalStateException если текущий пользователь не аутентифицирован.
+     */
+    public String viewProfile() {
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">        if (currentUser == null) {</span>
+<span class="nc" id="L350">            throw new IllegalStateException(&quot;No user is currently logged in&quot;);</span>
+        }
+<span class="fc" id="L352">        return userService.viewProfile(currentUser.getId());</span>
+    }
+
+    /**
+     * Отображает список всех пользователей в системе.
+     * Форматированный вывод включает ID, Email, Имя и Статус пользователя.
+     * Метод доступен только для аутентифицированных пользователей.
+     */
+    public void viewUsersList() {
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">        if (currentUser == null) return;</span>
+<span class="fc" id="L362">        userService.viewUsersList(currentUser.getId());</span>
+<span class="fc" id="L363">    }</span>
+
+    /**
+     * Возвращает месяц, связанный с бюджетом пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return месяц, связанный с бюджетом.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public String getMonth(String id) {
+<span class="fc" id="L373">        return budgetService.getMonth(id);</span>
+    }
+
+    /**
+     * Добавляет бюджет для пользователя на указанный месяц.
+     * Если у пользователя есть транзакции за этот месяц, они учитываются в расходах.
+     *
+     * @param month месяц для которого устанавливается бюджет.
+     * @param budget сумма бюджета.
+     * @throws IllegalArgumentException если месяц или сумма бюджета некорректны.
+     */
+    public void addBudget(String month, double budget) {
+<span class="fc" id="L385">        budgetService.addBudget(currentUser.getId(), month, budget);</span>
+<span class="fc" id="L386">        budgetService.addMonthlyExpress(currentUser.getId(),</span>
+<span class="fc" id="L387">                transactionService.calculateMonthlyExpress(currentUser.getId(), month));</span>
+<span class="fc" id="L388">    }</span>
+
+    /**
+     * Проверяет, установлен ли бюджет для пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если бюджет установлен; false, если нет.
+     */
+    public boolean isBudgetSet(String id) {
+<span class="fc" id="L397">        return budgetService.isBudgetSet(id);</span>
+    }
+
+    /**
+     * Возвращает месячный бюджет пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return сумма месячного бюджета.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public double getMonthlyBudget(String id) {
+<span class="fc" id="L408">        return budgetService.getMonthlyBudget(id);</span>
+    }
+
+    /**
+     * Возвращает сумму расходов пользователя за текущий месяц.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return сумма расходов.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public double getMonthlyExpress(String id) {
+<span class="fc" id="L419">        return budgetService.getMonthlyExpress(id);</span>
+    }
+
+    /**
+     * Добавляет сумму к расходам пользователя за текущий месяц.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param express сумма расходов.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public void addMonthlyExpress(String id, double express) {
+<span class="fc" id="L430">        budgetService.addMonthlyExpress(id, express);</span>
+<span class="fc" id="L431">    }</span>
+
+    /**
+     * Возвращает оставшуюся сумму бюджета пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return оставшаяся сумма бюджета.
+     * @throws IllegalArgumentException если бюджет для пользователя не установлен.
+     */
+    public double getRemaining(String id) {
+<span class="fc" id="L441">        return budgetService.getRemaining(id);</span>
+    }
+
+    /**
+     * Возвращает информацию о бюджете текущего пользователя.
+     *
+     * @return строка, содержащая информацию о бюджете.
+     */
+    public String viewBudget() {
+<span class="fc" id="L450">        return budgetService.viewBudget(currentUser.getId());</span>
+    }
+
+    /**
+     * Устанавливает финансовую цель для пользователя.
+     *
+     * @param name название цели.
+     * @param target целевая сумма.
+     * @throws IllegalArgumentException если название цели или целевая сумма некорректны.
+     */
+    public void setGoal(String name, double target) {
+<span class="fc" id="L461">        goalService.setGoal(currentUser.getId(), name, target);</span>
+<span class="fc" id="L462">    }</span>
+
+    /**
+     * Добавляет сумму к текущему прогрессу финансовой цели пользователя.
+     *
+     * @param amount сумма для добавления.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public void addAmount(double amount) {
+<span class="fc" id="L471">        goalService.addAmount(currentUser.getId(), amount);</span>
+<span class="fc" id="L472">    }</span>
+
+    /**
+     * Проверяет, установлена ли финансовая цель для пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return true, если цель установлена; false, если нет.
+     */
+    public boolean isGoalSet(String id) {
+<span class="fc" id="L481">        return goalService.isGoalSet(id);</span>
+    }
+
+    /**
+     * Возвращает прогресс достижения финансовой цели пользователя в процентах.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return прогресс в процентах.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public int getProgress(String id) {
+<span class="fc" id="L492">        return goalService.getProgress(id);</span>
+    }
+
+    /**
+     * Возвращает целевую сумму финансовой цели пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return целевая сумма.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public double getTargetAmount(String id) {
+<span class="fc" id="L503">        return goalService.getTargetAmount(id);</span>
+    }
+
+    /**
+     * Возвращает название финансовой цели пользователя.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @return название цели.
+     * @throws IllegalArgumentException если цель для пользователя не установлена.
+     */
+    public String getGoalName(String id) {
+<span class="fc" id="L514">        return goalService.getGoalName(id);</span>
+    }
+
+    /**
+     * Возвращает информацию о финансовой цели текущего пользователя.
+     *
+     * @return строка, содержащая информацию о цели.
+     */
+    public String viewGoal() {
+<span class="fc" id="L523">        return goalService.viewGoal(currentUser.getId());</span>
+    }
+
+    /**
+     * Возвращает текущий баланс пользователя.
+     * Баланс рассчитывается как сумма всех доходов за вычетом всех расходов.
+     *
+     * @return текущий баланс пользователя.
+     */
+    public double getBalance() {
+<span class="fc" id="L533">        return transactionService.getBalance(currentUser.getId());</span>
+    }
+
+    /**
+     * Возвращает сумму доходов пользователя за указанный период.
+     *
+     * @param start начальная дата периода.
+     * @param end конечная дата периода.
+     * @return сумма доходов за период.
+     */
+    public double getIncomeOfPeriod(LocalDate start, LocalDate end) {
+<span class="fc" id="L544">        return transactionService.getIncomeOfPeriod(currentUser.getId(), start, end);</span>
+    }
+
+    /**
+     * Возвращает сумму расходов пользователя за указанный период.
+     *
+     * @param start начальная дата периода.
+     * @param end конечная дата периода.
+     * @return сумма расходов за период.
+     */
+    public double getExpensesOfPeriod(LocalDate start, LocalDate end) {
+<span class="fc" id="L555">        return transactionService.getExpensesOfPeriod(currentUser.getId(), start, end);</span>
+    }
+
+    /**
+     * Возвращает строку с расходами по категориям за указанный период.
+     *
+     * @param start начальная дата периода.
+     * @param end   конечная дата периода.
+     * @return строка, содержащая расходы по категориям.
+     */
+    public String getExpensesByCategoryAsString(LocalDate start, LocalDate end) {
+<span class="fc" id="L566">        Map&lt;String, Double&gt; expensesByCategory = transactionService.getExpensesByCategory(currentUser.getId(), start, end);</span>
+
+<span class="fc" id="L568">        StringBuilder result = new StringBuilder(&quot;Расходы по категориям за период:\n&quot;);</span>
+<span class="fc" id="L569">        expensesByCategory.forEach((category, amount) -&gt;</span>
+<span class="fc" id="L570">                result.append(String.format(&quot;- %s: %.2f\n&quot;, category, amount)));</span>
+
+<span class="fc" id="L572">        return result.toString();</span>
+    }
+
+    /**
+     * Генерирует финансовый отчёт для пользователя за указанный период.
+     * Отчёт включает текущий баланс, доходы, расходы и расходы по категориям.
+     *
+     * @param start начальная дата периода.
+     * @param end конечная дата периода.
+     * @return строка, содержащая финансовый отчёт.
+     */
+    public String generateReport(LocalDate start, LocalDate end) {
+<span class="fc" id="L584">        return transactionService.generateReport(currentUser.getId(), start, end);</span>
+    }
+
+    /**
+     * Проверяет, превышен ли лимит расходов пользователя.
+     * Если лимит превышен, отправляет уведомление через сервис NotificationService.
+     *
+     * @param id уникальный идентификатор пользователя.
+     * @param recipient получатель уведомления (например, email).
+     */
+    public void checkExpenseLimit(String id, String recipient) {
+<span class="nc bnc" id="L595" title="All 2 branches missed.">        if (!budgetService.isBudgetSet(id)) {</span>
+<span class="nc" id="L596">            return;</span>
+        }
+<span class="nc" id="L598">        double expenseLimit = budgetService.getMonthlyBudget(id);</span>
+<span class="nc" id="L599">        double totalExpenses = budgetService.getMonthlyExpress(id);</span>
+<span class="nc bnc" id="L600" title="All 2 branches missed.">        if (totalExpenses &gt; expenseLimit) {</span>
+<span class="nc" id="L601">            String message = String.format(&quot;Превышен лимит расходов! Текущие расходы: %.2f, Лимит: %.2f&quot;,</span>
+<span class="nc" id="L602">                    totalExpenses, expenseLimit);</span>
+<span class="nc" id="L603">            notificationService.sendNotification(recipient, message);</span>
+        }
+<span class="nc" id="L605">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
